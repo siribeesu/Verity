@@ -1,0 +1,156 @@
+.lawyer-prep-tab {
+  overflow-y: auto;
+  height: calc(100vh - 110px);
+  padding: var(--space-8) var(--space-6);
+}
+
+.lawyer-prep-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.lawyer-prep-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+}
+
+.hero-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+
+.lawyer-prep-hero h1 {
+  font-size: 1.6rem;
+  margin-bottom: var(--space-2);
+}
+
+.hero-desc {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.lawyer-framing {
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-disclaimer-bg);
+  border: 1px solid var(--color-disclaimer-border);
+  border-radius: var(--radius-md);
+}
+
+.lawyer-framing p {
+  font-size: 0.88rem;
+  color: var(--color-disclaimer-text);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.questions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.questions-header h2 {
+  font-size: 1.1rem;
+  font-family: var(--font-sans);
+}
+
+.questions-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.questions-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0;
+}
+
+.question-item {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  align-items: flex-start;
+}
+
+.question-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.question-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.question-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.why-matters {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-border-strong);
+}
+
+.why-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.why-matters p {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.lawyer-footer-note {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+}
+
+.lawyer-footer-note p {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media print {
+  .lawyer-prep-tab { height: auto; }
+  .questions-actions, .btn { display: none; }
+  .lawyer-prep-hero, .lawyer-framing, .questions-list { break-inside: avoid; }
+}

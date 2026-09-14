@@ -1,0 +1,21 @@
+.disclaimer-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--color-disclaimer-bg);
+  border-bottom: 1px solid var(--color-disclaimer-border);
+  padding: 0.6rem 1.5rem;
+  font-size: 0.82rem;
+  color: var(--color-disclaimer-text);
+  line-height: 1.5;
+}
+
+.disclaimer-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.disclaimer-banner p {
+  margin: 0;
+}

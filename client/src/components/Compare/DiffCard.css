@@ -1,0 +1,119 @@
+.diff-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.diff-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.diff-header:hover {
+  background: var(--color-bg);
+}
+
+.diff-topic-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.diff-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.diff-topic {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.diff-toggle {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.diff-body {
+  padding: 0 var(--space-5) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.diff-columns {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.diff-divider-v {
+  background: var(--color-border);
+}
+
+.diff-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.diff-col-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.diff-col-a .diff-col-label { color: #6366f1; }
+.diff-col-b .diff-col-label { color: #0891b2; }
+
+.diff-significance {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-accent-light);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent);
+}
+
+.significance-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+  margin-bottom: var(--space-2);
+}
+
+.diff-significance p {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .diff-columns {
+    grid-template-columns: 1fr;
+  }
+  .diff-divider-v { display: none; }
+}
