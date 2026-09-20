@@ -14,8 +14,8 @@ const lawyerPrepRoute = require('./routes/lawyerPrep');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// Middleware - allow all valid origins with credentials for local and Vercel cloud deployment
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -63,18 +63,24 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  const provider = getActiveProvider();
-  console.log(`\n✓ LegalAssist server running at http://localhost:${PORT}`);
-  console.log(`  Provider: ${provider.toUpperCase()}`);
-  const keyMap = {
-    anthropic: 'ANTHROPIC_API_KEY',
-    openai: 'OPENAI_API_KEY',
-    gemini: 'GEMINI_API_KEY',
-    grok: 'GROK_API_KEY',
-  };
-  const keyName = keyMap[provider] || 'API_KEY';
-  if (!process.env[keyName]) {
-    console.warn(`⚠  ${keyName} is not set — AI features will fail. Add it to server/.env`);
-  }
-});
+// Export app for serverless deployment on Vercel
+module.exports = app;
+
+// Only start standalone HTTP server in non-serverless environments (local dev)
+if (require.main === module || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    const provider = getActiveProvider();
+    console.log(`\n✓ LegalAssist server running at http://localhost:${PORT}`);
+    console.log(`  Provider: ${provider.toUpperCase()}`);
+    const keyMap = {
+      anthropic: 'ANTHROPIC_API_KEY',
+      openai: 'OPENAI_API_KEY',
+      gemini: 'GEMINI_API_KEY',
+      grok: 'GROK_API_KEY',
+    };
+    const keyName = keyMap[provider] || 'API_KEY';
+    if (!process.env[keyName]) {
+      console.warn(`⚠  ${keyName} is not set — AI features will fail. Add it to server/.env or Vercel Environment Variables.`);
+    }
+  });
+}
