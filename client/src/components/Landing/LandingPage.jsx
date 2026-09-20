@@ -10,10 +10,7 @@ import {
   Sparkles,
   Lock,
   Quote,
-  Eye,
-  FileText,
-  ChevronRight,
-  Award
+  ChevronRight
 } from 'lucide-react'
 import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import './LandingPage.css'
@@ -34,7 +31,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
         </h1>
 
         <p className="hero-subtitle animate-fade-in">
-          Verity turns dense, confusing legal agreements into crystal-clear explanations,
+          LegalAssist turns dense, confusing legal agreements into crystal-clear explanations,
           flagged risk insights, and grounded citations — without replacing your lawyer.
         </p>
 
@@ -43,7 +40,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
             className="btn btn-primary btn-hero-primary"
             onClick={() => onLaunchApp('analyze')}
           >
-            <span>Launch Verity Assistant</span>
+            <span>Launch LegalAssist</span>
             <ArrowRight size={18} />
           </button>
           <button
@@ -109,7 +106,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
             </div>
             <h3>Side-by-Side Compare</h3>
             <p>
-              Spot material shifts between two agreement drafts. Verity ignores stylistic edits and zeroes in on altered obligations.
+              Spot material shifts between two agreement drafts. LegalAssist ignores stylistic edits and zeroes in on altered obligations.
             </p>
             <ul className="feature-bullets">
               <li><CheckCircle2 size={14} /> Side-by-side color-coded excerpts</li>
@@ -201,7 +198,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
         <div className="presets-banner card">
           <div className="presets-banner-text">
             <h3>Test with realistic sample documents</h3>
-            <p>Experience how Verity analyzes different contract categories with one click:</p>
+            <p>Experience how LegalAssist analyzes different contract categories with one click:</p>
           </div>
 
           <div className="presets-cards-row">
@@ -233,7 +230,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
           <div className="trust-card-header">
             <ShieldCheck size={28} className="trust-shield-icon" />
             <div>
-              <h3>The Verity Grounding Principle</h3>
+              <h3>The LegalAssist Grounding Principle</h3>
               <p>Every AI explanation must trace back to an exact, verifiable source excerpt.</p>
             </div>
           </div>
@@ -242,7 +239,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
             <div className="trust-point">
               <CheckCircle2 size={18} className="trust-point-icon" />
               <div>
-                <strong>Zero Hallucination Tolerance:</strong> If a document doesn't address an issue, Verity explicitly informs you rather than guessing.
+                <strong>Zero Hallucination Tolerance:</strong> If a document doesn't address an issue, LegalAssist explicitly informs you rather than guessing.
               </div>
             </div>
             <div className="trust-point">
@@ -281,11 +278,11 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
         <div className="footer-inner">
           <div className="footer-brand">
             <ShieldCheck size={20} className="footer-logo-icon" />
-            <span className="footer-brand-name">Verity</span>
+            <span className="footer-brand-name">LegalAssist</span>
             <span className="footer-tagline">— Legal Document Clarity Assistant</span>
           </div>
           <p className="footer-disclaimer">
-            Disclaimer: Verity is an informational clarity tool, not a law firm or substitute for an attorney. Always consult a licensed lawyer before executing legal documents.
+            Disclaimer: LegalAssist is an informational clarity tool, not a law firm or substitute for an attorney. Always consult a licensed lawyer before executing legal documents.
           </p>
         </div>
       </footer>

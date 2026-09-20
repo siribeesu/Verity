@@ -43,20 +43,17 @@ app.use('/api/ask', askRoute);
 app.use('/api/lawyer-prep', lawyerPrepRoute);
 
 // Health check
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'verity-server', provider: getActiveProvider() }));
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'legalassist-server', provider: getActiveProvider() }));
 
-// Error handler
+// Global error handler
 app.use((err, _req, res, _next) => {
-  console.error('[Verity Server Error]', err);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
-    details: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+  console.error('[LegalAssist Server Error]', err);
+  res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
 app.listen(PORT, () => {
   const provider = getActiveProvider();
-  console.log(`\n✓ Verity server running at http://localhost:${PORT}`);
+  console.log(`\n✓ LegalAssist server running at http://localhost:${PORT}`);
   console.log(`  Provider: ${provider.toUpperCase()}`);
   const keyMap = {
     anthropic: 'ANTHROPIC_API_KEY',

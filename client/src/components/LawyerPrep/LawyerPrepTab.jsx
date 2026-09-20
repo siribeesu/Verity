@@ -77,7 +77,7 @@ export default function LawyerPrepTab({ analyzeResult, onRunSampleAnalyze }) {
             <h3>Important Professional Context</h3>
           </div>
           <p>
-            Verity is an informational clarity tool, not a law firm or licensed attorney. These questions serve as a structured starting point for your meeting. A licensed lawyer in your jurisdiction is the only professional qualified to evaluate your individual risks and legal strategy.
+            LegalAssist is an informational clarity tool, not a law firm or licensed attorney. These questions serve as a structured starting point for your meeting. A licensed lawyer in your jurisdiction is the only professional qualified to evaluate your individual risks and legal strategy.
           </p>
         </div>
 

@@ -15,7 +15,7 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
     { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
     { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
     { id: 'compare', label: 'Compare', icon: GitCompare, desc: 'Material differences' },
-    { id: 'ask', label: 'Ask Verity', icon: MessageSquareQuote, desc: 'Citations & Q&A' },
+    { id: 'ask', label: 'Ask LegalAssist', icon: MessageSquareQuote, desc: 'Citations & Q&A' },
     { id: 'lawyer-prep', label: 'Lawyer Prep', icon: Scale, desc: 'Consultation questions' },
   ]
 
@@ -26,7 +26,7 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
         <div
           className="header-brand clickable"
           onClick={() => onTabChange('landing')}
-          title="Go to Verity Home"
+          title="Go to LegalAssist Home"
           role="button"
           tabIndex={0}
         >
@@ -35,8 +35,8 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
           </div>
           <div className="brand-text-block">
             <div className="brand-title-row">
-              <h1 className="brand-name">Verity</h1>
-              <span className="brand-badge">Legal Assistant</span>
+              <h1 className="brand-name">LegalAssist</h1>
+              <span className="brand-badge">AI Assistant</span>
             </div>
             <p className="brand-tagline">Understand, compare & clarify legal documents with verified citations</p>
           </div>
