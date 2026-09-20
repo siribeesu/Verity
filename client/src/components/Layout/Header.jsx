@@ -33,13 +33,7 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
           <div className="brand-icon-wrap">
             <ShieldCheck className="brand-logo-icon" size={22} />
           </div>
-          <div className="brand-text-block">
-            <div className="brand-title-row">
-              <h1 className="brand-name">LegalAssist</h1>
-              <span className="brand-badge">AI Assistant</span>
-            </div>
-            <p className="brand-tagline">Understand, compare & clarify legal documents with verified citations</p>
-          </div>
+          <h1 className="brand-name">LegalAssist</h1>
         </div>
 
         <div className="header-right-actions">
