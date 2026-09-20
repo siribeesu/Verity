@@ -9,7 +9,9 @@ import {
   Check,
   MessageSquarePlus,
   Quote,
-  Sparkles
+  Sparkles,
+  Lightbulb,
+  Crosshair
 } from 'lucide-react'
 import './ClauseCard.css'
 
@@ -34,14 +36,57 @@ const RISK_CONFIG = {
   }
 }
 
-export default function ClauseCard({ clause, onAskAboutClause }) {
+function generateCounterProposal(clause) {
+  const cat = (clause.category || '').toLowerCase()
+  const title = (clause.title || '').toLowerCase()
+
+  if (cat.includes('auto-renewal') || title.includes('renewal')) {
+    return {
+      counterText: `Upon expiration of the initial term, this Agreement shall convert to a month-to-month tenancy (or require affirmative mutual written agreement to renew for an additional term), with at least thirty (30) days advance written notice required to terminate.`,
+      tip: `Ask to eliminate automatic 12-month lock-ins and automatic price escalations.`
+    }
+  }
+  if (cat.includes('liability') || cat.includes('indemnification') || title.includes('indemn')) {
+    return {
+      counterText: `Each party agrees to indemnify and hold harmless the other party against third-party claims arising solely from its own gross negligence, intentional misconduct, or material breach of this Agreement. Neither party shall be liable for the other's own negligence.`,
+      tip: `Ensure indemnification is strictly mutual and explicitly excludes claims caused by the other party's own negligence.`
+    }
+  }
+  if (cat.includes('repair') || title.includes('maintenance') || title.includes('access') || title.includes('entry')) {
+    return {
+      counterText: `Landlord shall provide at least twenty-four (24) hours advance written notice prior to entering the Premises, with entry permitted only during reasonable business hours (9:00 AM - 5:00 PM), except in cases of verified emergency. Landlord remains responsible for all building systems and appliance maintenance.`,
+      tip: `Ensure 24-hour advance written notice is mandatory for non-emergencies.`
+    }
+  }
+  if (cat.includes('termination') || title.includes('cancel')) {
+    return {
+      counterText: `Either party may terminate this Agreement for material breach, provided the non-breaching party gives written notice specifying the breach and a thirty (30) day period to cure such breach before termination takes effect.`,
+      tip: `Request a mandatory 30-day written notice and right-to-cure period before termination or penalty.`
+    }
+  }
+  if (cat.includes('non-compete') || title.includes('compete') || cat.includes('ip') || title.includes('intellectual')) {
+    return {
+      counterText: `Contractor retains all pre-existing IP, tools, and general knowledge. Client owns final delivered work product upon payment in full. Any restrictive covenant shall be strictly limited to direct competitive solicitation for a duration not exceeding six (6) months within the immediate metropolitan area.`,
+      tip: `Narrow non-compete scope to direct competitors only and ensure IP transfers only upon full payment.`
+    }
+  }
+  return {
+    counterText: `The parties agree that all obligations under this clause shall be mutual, reasonable, and subject to standard industry terms with reasonable notice and opportunity to cure any alleged deficiency.`,
+    tip: `Propose mutual standard language that balances rights and liabilities equally between both parties.`
+  }
+}
+
+export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerpt }) {
   const [excerptOpen, setExcerptOpen] = useState(false)
+  const [counterOpen, setCounterOpen] = useState(false)
   const [copiedExcerpt, setCopiedExcerpt] = useState(false)
   const [copiedExplanation, setCopiedExplanation] = useState(false)
+  const [copiedCounter, setCopiedCounter] = useState(false)
 
   const riskLevel = clause.risk || 'low'
   const config = RISK_CONFIG[riskLevel] || RISK_CONFIG.low
   const RiskIcon = config.icon
+  const counterProposal = (riskLevel === 'high' || riskLevel === 'medium') ? generateCounterProposal(clause) : null
 
   function handleCopyExcerpt() {
     if (!clause.original_excerpt) return
@@ -55,6 +100,13 @@ export default function ClauseCard({ clause, onAskAboutClause }) {
     navigator.clipboard.writeText(text)
     setCopiedExplanation(true)
     setTimeout(() => setCopiedExplanation(false), 1500)
+  }
+
+  function handleCopyCounter() {
+    if (!counterProposal) return
+    navigator.clipboard.writeText(counterProposal.counterText)
+    setCopiedCounter(true)
+    setTimeout(() => setCopiedCounter(false), 1500)
   }
 
   return (
@@ -72,6 +124,16 @@ export default function ClauseCard({ clause, onAskAboutClause }) {
         </div>
 
         <div className="clause-quick-actions">
+          {clause.original_excerpt && onHighlightExcerpt && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm clause-action-btn"
+              onClick={() => onHighlightExcerpt(clause.original_excerpt)}
+              title="Locate and highlight this clause in document text"
+            >
+              <Crosshair size={13} />
+            </button>
+          )}
           <button
             type="button"
             className="btn btn-ghost btn-sm clause-action-btn"
@@ -110,6 +172,44 @@ export default function ClauseCard({ clause, onAskAboutClause }) {
               <span className="box-section-label">Why It Was Flagged</span>
             </div>
             <p className="clause-risk-reason">{clause.risk_reason}</p>
+          </div>
+        )}
+
+        {/* Counter-proposal suggestion toggle */}
+        {counterProposal && (
+          <div className="counter-proposal-section">
+            <button
+              type="button"
+              className="counter-proposal-toggle-btn"
+              onClick={() => setCounterOpen((o) => !o)}
+            >
+              <Lightbulb size={13} className="lightbulb-icon" />
+              <span>{counterOpen ? 'Hide Suggested Counter-Clause' : '💡 Suggest Fair Replacement Clause'}</span>
+              <span className="toggle-arrow">{counterOpen ? '▴' : '▾'}</span>
+            </button>
+
+            {counterOpen && (
+              <div className="counter-proposal-box animate-fade-in">
+                <div className="counter-header">
+                  <span className="counter-label">Proposed Balanced Language:</span>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm copy-counter-btn"
+                    onClick={handleCopyCounter}
+                    title="Copy counter-clause to clipboard"
+                  >
+                    {copiedCounter ? <Check size={12} className="text-success" /> : <Copy size={12} />}
+                    <span>{copiedCounter ? 'Copied' : 'Copy Replacement'}</span>
+                  </button>
+                </div>
+                <blockquote className="counter-quote-text">
+                  "{counterProposal.counterText}"
+                </blockquote>
+                <p className="counter-tip-text">
+                  <strong>Negotiation Strategy:</strong> {counterProposal.tip}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const { getActiveProvider } = require('./services/claudeClient');
 const analyzeRoute = require('./routes/analyze');
@@ -17,6 +18,17 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Rate limiter for API protection
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // Limit each IP to 200 requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes.' }
+});
+
+app.use('/api/', apiLimiter);
 
 // File upload (memory storage — files parsed immediately, not persisted)
 const upload = multer({

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import DocumentInput from '../DocumentInput/DocumentInput'
 import DiffCard from './DiffCard'
+import VisualRedline from './VisualRedline'
 import { useCompare } from '../../hooks/useCompare'
 import { SAMPLE_COMPARISON_PAIRS } from '../../data/sampleDocuments'
 import { GitCompare, ArrowLeftRight, Sparkles, Sliders, CheckCircle2 } from 'lucide-react'
@@ -176,6 +177,11 @@ export default function CompareTab() {
               </div>
               <p className="compare-overview-text">{result.overview}</p>
             </div>
+
+            {/* Visual Word Redline Diff */}
+            {(textA || textB) && (
+              <VisualRedline textA={textA} textB={textB} />
+            )}
 
             {result.differences?.length > 0 ? (
               <div className="diffs-list">

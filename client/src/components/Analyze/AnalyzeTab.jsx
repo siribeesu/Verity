@@ -3,8 +3,18 @@ import DocumentInput from '../DocumentInput/DocumentInput'
 import ClauseCard from './ClauseCard'
 import GlossarySection from './GlossarySection'
 import ActionChecklist from './ActionChecklist'
+import AnalysisReportModal from './AnalysisReportModal'
+import FairnessMeter from './FairnessMeter'
+import DeadlinesFinancials from './DeadlinesFinancials'
+import ScenarioNavigator from './ScenarioNavigator'
 import { useAnalyze } from '../../hooks/useAnalyze'
 import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
+import {
+  saveAnalysisToHistory,
+  getAnalysisHistory,
+  deleteAnalysisFromHistory,
+  clearAllHistory
+} from '../../utils/historyStorage'
 import {
   FileSearch,
   Sparkles,
@@ -18,7 +28,13 @@ import {
   Search,
   ArrowRight,
   ShieldAlert,
-  Layers
+  Layers,
+  Printer,
+  History,
+  Trash2,
+  X,
+  Calendar,
+  Clock
 } from 'lucide-react'
 import './AnalyzeTab.css'
 
@@ -47,8 +63,16 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
   const [jurisdiction, setJurisdiction] = useState('')
   const [filterRisk, setFilterRisk] = useState('all')
   const [clauseSearch, setClauseSearch] = useState('')
+  const [showReportModal, setShowReportModal] = useState(false)
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [historyList, setHistoryList] = useState([])
 
-  const { result, loading, error, run } = useAnalyze()
+  const { result, loading, error, run, setResult } = useAnalyze()
+
+  // Load history on mount
+  useEffect(() => {
+    setHistoryList(getAnalysisHistory())
+  }, [])
 
   function handleRun() {
     if (!text.trim() && !file) return
@@ -63,10 +87,62 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
     }
   }
 
-  // Notify parent of new result
+  // Notify parent of new result and auto-save to history
   useEffect(() => {
-    if (result) onAnalysisComplete?.(result, text || '[uploaded file]')
+    if (result) {
+      onAnalysisComplete?.(result, text || '[uploaded file]')
+      if (text && text.trim()) {
+        saveAnalysisToHistory(null, docType, text, result)
+        setHistoryList(getAnalysisHistory())
+      }
+    }
   }, [result])
+
+  function handleLoadHistoryItem(item) {
+    setText(item.docText || '')
+    setDocType(item.docType || 'general')
+    setResult(item.result)
+    setShowHistoryModal(false)
+  }
+
+  function handleDeleteHistoryItem(e, id) {
+    e.stopPropagation()
+    const updated = deleteAnalysisFromHistory(id)
+    setHistoryList(updated)
+  }
+
+  function handleClearAllHistory() {
+    clearAllHistory()
+    setHistoryList([])
+  }
+
+  function handleHighlightExcerpt(excerpt) {
+    if (!excerpt) return
+    const textarea = document.getElementById('document')
+    if (!textarea || !text) return
+
+    const cleanExcerpt = excerpt.trim()
+    let idx = text.indexOf(cleanExcerpt)
+
+    if (idx === -1) {
+      // Fallback: search partial match
+      const lowerText = text.toLowerCase()
+      const searchFragment = cleanExcerpt.toLowerCase().slice(0, 35)
+      idx = lowerText.indexOf(searchFragment)
+    }
+
+    if (idx !== -1) {
+      textarea.focus()
+      const length = cleanExcerpt.length
+      textarea.setSelectionRange(idx, idx + length)
+
+      // Calculate approximate line number to scroll
+      const textBefore = text.substring(0, idx)
+      const linesBefore = textBefore.split('\n').length
+      const approximateLineHeight = 22
+      textarea.scrollTop = Math.max(0, (linesBefore - 3) * approximateLineHeight)
+    }
+  }
 
   const clauses = result?.clauses || []
   const highRiskCount = clauses.filter((c) => c.risk === 'high').length
@@ -92,7 +168,20 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             <FileText size={18} className="panel-header-icon" />
             <h2>Source Document</h2>
           </div>
-          <span className="step-pill">Step 1 & 2</span>
+          <div className="panel-header-actions-left">
+            {historyList.length > 0 && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm history-toggle-btn"
+                onClick={() => setShowHistoryModal(true)}
+                title="View recent document analyses"
+              >
+                <History size={13} />
+                <span>History ({historyList.length})</span>
+              </button>
+            )}
+            <span className="step-pill">Step 1 & 2</span>
+          </div>
         </div>
 
         <div className="panel-body">
@@ -192,11 +281,24 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             <Sparkles size={18} className="panel-header-icon highlight" />
             <h2>Document Analysis & Breakdown</h2>
           </div>
-          {result && (
-            <span className="results-badge">
-              {clauses.length} clause{clauses.length !== 1 ? 's' : ''} reviewed
-            </span>
-          )}
+          <div className="panel-header-actions-right">
+            {result && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm export-report-btn"
+                onClick={() => setShowReportModal(true)}
+                title="Print or export full analysis report as PDF"
+              >
+                <Printer size={14} />
+                <span>Export PDF Report</span>
+              </button>
+            )}
+            {result && (
+              <span className="results-badge">
+                {clauses.length} clause{clauses.length !== 1 ? 's' : ''} reviewed
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="panel-body results-body">
@@ -255,6 +357,15 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
                 <h2 className="summary-heading">Summary & Key Takeaways</h2>
                 <p className="summary-text">{result.summary}</p>
               </div>
+
+              {/* Fairness & Balance Meter */}
+              <FairnessMeter clauses={clauses} docType={docType} />
+
+              {/* Deadlines & Financial Commitments Extractor */}
+              <DeadlinesFinancials docText={text} clauses={clauses} />
+
+              {/* Rights & Scenario Navigator */}
+              <ScenarioNavigator docType={docType} />
 
               {/* Risk metrics summary row */}
               <div className="risk-dashboard card">
@@ -342,6 +453,7 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
                         key={i}
                         clause={clause}
                         onAskAboutClause={(c) => onAskAboutClause?.(c, text)}
+                        onHighlightExcerpt={handleHighlightExcerpt}
                       />
                     ))}
                   </div>
@@ -390,6 +502,97 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
           )}
         </div>
       </div>
+
+      {/* History Modal */}
+      {showHistoryModal && (
+        <div className="history-modal-overlay" onClick={() => setShowHistoryModal(false)}>
+          <div className="history-modal-card card" onClick={(e) => e.stopPropagation()}>
+            <div className="history-modal-header">
+              <div className="history-modal-title">
+                <History size={18} className="text-primary" />
+                <h3>Saved Document Analyses</h3>
+              </div>
+              <div className="history-header-actions">
+                {historyList.length > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm text-danger"
+                    onClick={handleClearAllHistory}
+                    title="Clear all history"
+                  >
+                    <Trash2 size={13} />
+                    <span>Clear All</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm close-history-btn"
+                  onClick={() => setShowHistoryModal(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="history-modal-body">
+              {historyList.length === 0 ? (
+                <div className="history-empty-state">
+                  <Clock size={32} className="text-muted" />
+                  <p>No saved analyses found in this browser.</p>
+                </div>
+              ) : (
+                <div className="history-items-list">
+                  {historyList.map((item) => (
+                    <div
+                      key={item.id}
+                      className="history-item-row"
+                      onClick={() => handleLoadHistoryItem(item)}
+                    >
+                      <div className="history-item-info">
+                        <span className="history-item-title">{item.title}</span>
+                        <div className="history-item-meta">
+                          <span className="history-item-type">{item.docType.toUpperCase()}</span>
+                          <span>•</span>
+                          <span>{item.clauseCount} clauses</span>
+                          {item.highRiskCount > 0 && (
+                            <>
+                              <span>•</span>
+                              <span className="text-danger font-semibold">{item.highRiskCount} High Risk</span>
+                            </>
+                          )}
+                          <span>•</span>
+                          <span>{new Date(item.date).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <div className="history-item-actions">
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm history-delete-btn"
+                          onClick={(e) => handleDeleteHistoryItem(e, item.id)}
+                          title="Delete from history"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PDF / Print Report Modal */}
+      {showReportModal && (
+        <AnalysisReportModal
+          result={result}
+          docText={text}
+          docType={docType}
+          jurisdiction={jurisdiction}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
   )
 }

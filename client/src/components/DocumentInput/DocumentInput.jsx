@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
-import { FileText, UploadCloud, File, Trash2, Clipboard, Sparkles, Check } from 'lucide-react'
+import { FileText, UploadCloud, File, Trash2, Clipboard, Sparkles, Check, ShieldCheck } from 'lucide-react'
+import { sanitizePII } from '../../utils/piiSanitizer'
 import './DocumentInput.css'
 
 export default function DocumentInput({
@@ -16,8 +17,17 @@ export default function DocumentInput({
   const [fileName, setFileName] = useState(null)
   const [fileSize, setFileSize] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [piiCleaned, setPiiCleaned] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const fileRef = useRef(null)
+
+  function handleSanitizePII() {
+    if (!value) return
+    const { sanitizedText, redactionsCount } = sanitizePII(value)
+    onChange?.(sanitizedText)
+    setPiiCleaned(true)
+    setTimeout(() => setPiiCleaned(false), 2000)
+  }
 
   function formatBytes(bytes) {
     if (!bytes) return ''
@@ -165,6 +175,17 @@ export default function DocumentInput({
             </div>
 
             <div className="textarea-quick-actions">
+              {value && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm btn-quick"
+                  onClick={handleSanitizePII}
+                  title="Sanitize sensitive PII (SSN, emails, phone numbers, account numbers) before analysis"
+                >
+                  <ShieldCheck size={13} className={piiCleaned ? 'text-success' : 'text-primary'} />
+                  <span>{piiCleaned ? 'PII Sanitized!' : 'Mask PII'}</span>
+                </button>
+              )}
               {navigator.clipboard && !value && (
                 <button
                   type="button"
