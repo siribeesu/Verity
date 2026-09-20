@@ -4,6 +4,9 @@ import ClauseCard from './ClauseCard'
 import GlossarySection from './GlossarySection'
 import ActionChecklist from './ActionChecklist'
 import AnalysisReportModal from './AnalysisReportModal'
+import FairnessMeter from './FairnessMeter'
+import DeadlinesFinancials from './DeadlinesFinancials'
+import ScenarioNavigator from './ScenarioNavigator'
 import { useAnalyze } from '../../hooks/useAnalyze'
 import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import {
@@ -354,6 +357,15 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
                 <h2 className="summary-heading">Summary & Key Takeaways</h2>
                 <p className="summary-text">{result.summary}</p>
               </div>
+
+              {/* Fairness & Balance Meter */}
+              <FairnessMeter clauses={clauses} docType={docType} />
+
+              {/* Deadlines & Financial Commitments Extractor */}
+              <DeadlinesFinancials docText={text} clauses={clauses} />
+
+              {/* Rights & Scenario Navigator */}
+              <ScenarioNavigator docType={docType} />
 
               {/* Risk metrics summary row */}
               <div className="risk-dashboard card">
