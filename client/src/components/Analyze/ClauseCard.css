@@ -7,11 +7,11 @@
   flex-direction: column;
   gap: 0.85rem;
   box-shadow: var(--shadow-xs);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .clause-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   border-color: var(--color-border-strong);
 }
 
@@ -49,8 +49,8 @@
 .clause-title {
   font-family: var(--font-sans);
   font-size: 0.98rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-secondary);
   margin: 0;
   line-height: 1.35;
 }
@@ -68,7 +68,7 @@
   color: var(--color-text-muted);
 }
 .clause-action-btn:hover {
-  color: var(--color-text-primary);
+  color: var(--color-secondary);
 }
 
 .clause-ask-btn {
@@ -99,7 +99,7 @@
 }
 
 .sparkle-ai-icon {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .box-section-label {
@@ -179,12 +179,11 @@
   color: var(--color-text-muted);
 }
 .excerpt-toggle-btn:hover {
-  color: var(--color-text-primary);
+  color: var(--color-secondary);
 }
 
 .quote-icon {
-  color: var(--color-accent);
-  opacity: 0.7;
+  color: var(--color-primary);
 }
 
 .copy-excerpt-btn {

@@ -5,19 +5,18 @@ import {
   MessageSquareQuote,
   Scale,
   ShieldCheck,
-  Home,
-  Sparkles
+  Home
 } from 'lucide-react'
 import DisclaimerBanner from './DisclaimerBanner'
 import './Header.css'
 
 export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
   const tabs = [
-    { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities', colorClass: 'icon-cyan' },
-    { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown', colorClass: 'icon-indigo' },
-    { id: 'compare', label: 'Compare', icon: GitCompare, desc: 'Material differences', colorClass: 'icon-purple' },
-    { id: 'ask', label: 'Ask Verity', icon: MessageSquareQuote, desc: 'Citations & Q&A', colorClass: 'icon-emerald' },
-    { id: 'lawyer-prep', label: 'Lawyer Prep', icon: Scale, desc: 'Consultation questions', colorClass: 'icon-amber' },
+    { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
+    { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
+    { id: 'compare', label: 'Compare', icon: GitCompare, desc: 'Material differences' },
+    { id: 'ask', label: 'Ask Verity', icon: MessageSquareQuote, desc: 'Citations & Q&A' },
+    { id: 'lawyer-prep', label: 'Lawyer Prep', icon: Scale, desc: 'Consultation questions' },
   ]
 
   return (
@@ -32,17 +31,14 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
           tabIndex={0}
         >
           <div className="brand-icon-wrap">
-            <ShieldCheck className="brand-logo-icon" size={24} />
+            <ShieldCheck className="brand-logo-icon" size={22} />
           </div>
           <div className="brand-text-block">
             <div className="brand-title-row">
               <h1 className="brand-name">Verity</h1>
-              <span className="brand-badge">
-                <Sparkles size={10} className="badge-sparkle" />
-                Legal Clarity AI
-              </span>
+              <span className="brand-badge">Legal Assistant</span>
             </div>
-            <p className="brand-tagline">Understand, compare & challenge contracts with verifiable source citations</p>
+            <p className="brand-tagline">Understand, compare & clarify legal documents with verified citations</p>
           </div>
         </div>
 
@@ -60,10 +56,10 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
                   onClick={() => onTabChange(tab.id)}
                   title={tab.desc}
                 >
-                  <Icon size={16} className={`tab-icon ${tab.colorClass}`} />
+                  <Icon size={16} className="tab-icon" />
                   <span className="tab-label">{tab.label}</span>
                   {tab.id === 'lawyer-prep' && hasAnalyzedDoc && (
-                    <span className="tab-pill-dot animate-pulse-glow" title="Questions ready" />
+                    <span className="tab-pill-dot" title="Questions ready" />
                   )}
                 </button>
               )

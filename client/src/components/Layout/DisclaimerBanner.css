@@ -3,13 +3,12 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 50%, #1e1b4b 100%);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+  background: #0b1120;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.45rem 2rem;
   font-size: 0.78rem;
-  color: #c7d2fe;
+  color: #cbd5e1;
   line-height: 1.45;
-  transition: all 0.2s ease;
 }
 
 .disclaimer-content {
@@ -21,21 +20,21 @@
 
 .disclaimer-icon {
   flex-shrink: 0;
-  color: #818cf8;
+  color: var(--color-primary);
 }
 
 .disclaimer-banner p {
   margin: 0;
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 
 .disclaimer-banner strong {
   font-weight: 700;
-  color: #e0e7ff;
+  color: #f1f5f9;
 }
 
 .disclaimer-close-btn {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.1);
   cursor: pointer;
   color: #94a3b8;
@@ -50,7 +49,7 @@
 
 .disclaimer-close-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 600px) {
