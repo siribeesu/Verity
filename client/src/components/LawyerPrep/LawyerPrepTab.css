@@ -1,156 +1,284 @@
 .lawyer-prep-tab {
   overflow-y: auto;
-  height: calc(100vh - 110px);
-  padding: var(--space-8) var(--space-6);
+  height: calc(100vh - 100px);
+  padding: 1.75rem 1.5rem;
+  background: var(--color-bg);
 }
 
 .lawyer-prep-inner {
-  max-width: 780px;
+  max-width: 820px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: 1.25rem;
 }
 
 .lawyer-prep-hero {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-5);
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+  border: 1px solid var(--color-accent-border);
 }
 
-.hero-icon {
-  font-size: 2.5rem;
+.hero-icon-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  color: var(--color-accent);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
 }
 
-.lawyer-prep-hero h1 {
-  font-size: 1.6rem;
-  margin-bottom: var(--space-2);
+.hero-content h1 {
+  font-size: 1.45rem;
+  margin-bottom: 0.35rem;
 }
 
 .hero-desc {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--color-text-secondary);
-  line-height: 1.7;
+  line-height: 1.65;
   margin: 0;
 }
 
 .lawyer-framing {
-  padding: var(--space-4) var(--space-5);
+  padding: 1rem 1.25rem;
   background: var(--color-disclaimer-bg);
   border: 1px solid var(--color-disclaimer-border);
-  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.framing-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.framing-icon {
+  color: var(--color-disclaimer-text);
+}
+
+.framing-header h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-disclaimer-text);
+  margin: 0;
 }
 
 .lawyer-framing p {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: var(--color-disclaimer-text);
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
-.questions-header {
+.questions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.questions-header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.questions-header h2 {
-  font-size: 1.1rem;
-  font-family: var(--font-sans);
+.questions-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.questions-title-group h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.questions-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--color-accent-light);
+  color: var(--color-accent-dark);
+  border: 1px solid var(--color-accent-border);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
 }
 
 .questions-actions {
   display: flex;
-  gap: var(--space-2);
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .questions-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 1rem;
   padding: 0;
+  margin: 0;
 }
 
 .question-item {
   display: flex;
-  gap: var(--space-4);
-  padding: var(--space-5);
+  gap: 1.1rem;
+  padding: 1.25rem;
   align-items: flex-start;
 }
 
+.question-number-wrap {
+  flex-shrink: 0;
+}
+
 .question-number {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--color-accent);
   color: white;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .question-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 0.75rem;
 }
 
 .question-text {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.96rem;
+  font-weight: 600;
   color: var(--color-text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   margin: 0;
 }
 
-.why-matters {
-  padding: var(--space-3) var(--space-4);
+.why-matters-box {
+  padding: 0.75rem 0.95rem;
   background: var(--color-bg);
   border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-border-strong);
+  border-left: 3px solid var(--color-accent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .why-label {
-  display: block;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-1);
+  letter-spacing: 0.05em;
+  color: var(--color-accent-dark);
 }
 
-.why-matters p {
+.why-matters-box p {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin: 0;
 }
 
-.lawyer-footer-note {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4) var(--space-5);
+.question-notes-section {
+  margin-top: 0.25rem;
 }
 
-.lawyer-footer-note p {
-  font-size: 0.85rem;
+.add-note-btn {
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  padding: 2px 6px;
+}
+.add-note-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.notes-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #f8fafc;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+}
+
+.notes-label {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+.notes-textarea {
+  min-height: 54px;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  background: #ffffff;
+}
+
+.lawyer-resources {
+  padding: 1.15rem 1.25rem;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.resources-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.resources-icon {
+  color: var(--color-accent);
+}
+
+.resources-header h3 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.lawyer-resources p {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0;
 }
 
 @media print {
-  .lawyer-prep-tab { height: auto; }
-  .questions-actions, .btn { display: none; }
-  .lawyer-prep-hero, .lawyer-framing, .questions-list { break-inside: avoid; }
+  .app-header,
+  .questions-actions,
+  .btn,
+  .add-note-btn {
+    display: none !important;
+  }
+  .lawyer-prep-tab {
+    height: auto;
+    padding: 0;
+    background: white;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .question-item {
+    break-inside: avoid;
+  }
 }

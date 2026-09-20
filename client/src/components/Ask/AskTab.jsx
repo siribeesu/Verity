@@ -2,26 +2,51 @@ import React, { useState, useRef, useEffect } from 'react'
 import DocumentInput from '../DocumentInput/DocumentInput'
 import ChatMessage from './ChatMessage'
 import { useAsk } from '../../hooks/useAsk'
+import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
+import {
+  MessageSquareQuote,
+  Send,
+  Trash2,
+  FileText,
+  Sparkles,
+  ShieldAlert,
+  ArrowRight,
+  Download,
+  Search,
+  CheckCircle2,
+  HelpCircle
+} from 'lucide-react'
 import './AskTab.css'
 
-const SAMPLE_QUESTIONS = [
-  'What happens if I want to end this agreement early?',
-  'Who is responsible if something goes wrong?',
-  'Are there any automatic renewal clauses?',
-  'What can the other party do without my consent?',
+const QUESTION_CATEGORIES = [
+  {
+    category: 'Risks & Penalties',
+    icon: ShieldAlert,
+    questions: [
+      'What are the penalties if I terminate or breach early?',
+      'Are there any automatic renewals or surprise fee escalations?',
+      'What liabilities or risks am I agreeing to take on?',
+    ],
+  },
+  {
+    category: 'Rights & Obligations',
+    icon: HelpCircle,
+    questions: [
+      'What can the other party do without my advance notice or consent?',
+      'Who owns any intellectual property, deliverables, or derivatives?',
+      'What are the mandatory notice and dispute resolution procedures?',
+    ],
+  },
 ]
 
-export default function AskTab({ preloadedText }) {
+export default function AskTab({ preloadedText, initialQuestion }) {
   const [docText, setDocText] = useState(preloadedText || '')
   const [docFile, setDocFile] = useState(null)
   const [resolvedText, setResolvedText] = useState(preloadedText || '')
-  const [question, setQuestion] = useState('')
+  const [question, setQuestion] = useState(initialQuestion || '')
   const [docLoaded, setDocLoaded] = useState(!!preloadedText)
+  const [docSearchQuery, setDocSearchQuery] = useState('')
   const messagesEndRef = useRef(null)
-
-  // If a file is uploaded, we need to read it client-side or just send it
-  // For Ask, we need the text, so we'll send it to a quick parse endpoint
-  // Simple approach: just use the pasted text for now (file upload resolves to text via analyze)
 
   const { messages, streaming, error, ask, clearMessages } = useAsk(resolvedText)
 
@@ -29,14 +54,20 @@ export default function AskTab({ preloadedText }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // If preloadedText changes (from Analyze tab), update
+  // Sync if preloadedText or initialQuestion changes
   useEffect(() => {
-    if (preloadedText && !docLoaded) {
+    if (preloadedText) {
       setDocText(preloadedText)
       setResolvedText(preloadedText)
       setDocLoaded(true)
     }
   }, [preloadedText])
+
+  useEffect(() => {
+    if (initialQuestion) {
+      setQuestion(initialQuestion)
+    }
+  }, [initialQuestion])
 
   function handleLoadDoc() {
     if (docText.trim()) {
@@ -44,6 +75,13 @@ export default function AskTab({ preloadedText }) {
       setDocLoaded(true)
       clearMessages()
     }
+  }
+
+  function handleSelectSample(sample) {
+    setDocText(sample.text)
+    setResolvedText(sample.text)
+    setDocLoaded(true)
+    clearMessages()
   }
 
   function handleSend() {
@@ -59,48 +97,100 @@ export default function AskTab({ preloadedText }) {
     }
   }
 
+  function handleExportChat() {
+    if (!messages.length) return
+    const formatted = messages
+      .map((m) => {
+        const role = m.role === 'user' ? 'USER' : 'VERITY ASSISTANT'
+        let text = `[${role}]:\n${m.content}\n`
+        if (m.excerpt) {
+          text += `(Cited Excerpt: "${m.excerpt}")\n`
+        }
+        return text
+      })
+      .join('\n---\n\n')
+
+    const blob = new Blob([formatted], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `verity-document-chat-${new Date().toISOString().slice(0, 10)}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const wordCount = resolvedText ? resolvedText.trim().split(/\s+/).filter(Boolean).length : 0
+
   return (
     <div className="ask-tab">
       {/* Left: document panel */}
       <div className="ask-doc-panel">
         <div className="panel-header">
-          <h2>Document</h2>
+          <div className="panel-title-group">
+            <FileText size={18} className="panel-header-icon" />
+            <h2>Document Context</h2>
+          </div>
           {docLoaded && (
-            <span className="doc-loaded-badge">✓ Loaded</span>
+            <span className="doc-loaded-badge">
+              <CheckCircle2 size={12} />
+              Loaded ({wordCount.toLocaleString()} words)
+            </span>
           )}
         </div>
+
         <div className="panel-body">
           {!docLoaded ? (
-            <>
+            <div className="doc-load-form">
               <DocumentInput
-                label="Legal Document"
+                label="Document to Question"
                 value={docText}
                 onChange={setDocText}
                 onFileChange={setDocFile}
-                placeholder="Paste the document you want to ask questions about..."
+                placeholder="Paste the document text to enable grounded Q&A with citations..."
+                samples={SAMPLE_DOCUMENTS}
+                onSelectSample={handleSelectSample}
               />
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-load-doc"
                 onClick={handleLoadDoc}
                 disabled={!docText.trim()}
-                style={{ width: '100%', justifyContent: 'center' }}
               >
-                Load Document
+                <span>Load Document for Q&A</span>
+                <ArrowRight size={15} />
               </button>
-              {preloadedText && (
-                <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', margin: 0 }}>
-                  ✓ Document from Analyze tab is ready — click Load Document.
-                </p>
-              )}
-            </>
+            </div>
           ) : (
-            <div className="doc-preview">
-              <p className="doc-preview-text">{resolvedText.slice(0, 600)}{resolvedText.length > 600 ? '…' : ''}</p>
+            <div className="doc-preview-container">
+              <div className="doc-preview-search">
+                <Search size={14} className="preview-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Filter or search in document text..."
+                  value={docSearchQuery}
+                  onChange={(e) => setDocSearchQuery(e.target.value)}
+                  className="preview-search-input"
+                />
+              </div>
+
+              <div className="doc-preview-box">
+                <p className="doc-preview-text">
+                  {docSearchQuery
+                    ? resolvedText
+                        .split('\n')
+                        .filter((line) => line.toLowerCase().includes(docSearchQuery.toLowerCase()))
+                        .join('\n') || 'No matching lines found.'
+                    : resolvedText}
+                </p>
+              </div>
+
               <button
-                className="btn btn-ghost"
-                onClick={() => { setDocLoaded(false); clearMessages() }}
+                className="btn btn-secondary btn-sm replace-doc-btn"
+                onClick={() => {
+                  setDocLoaded(false)
+                  clearMessages()
+                }}
               >
-                ← Replace document
+                <span>Change / Replace Document</span>
               </button>
             </div>
           )}
@@ -110,37 +200,84 @@ export default function AskTab({ preloadedText }) {
       {/* Right: chat panel */}
       <div className="ask-chat-panel">
         <div className="panel-header">
-          <h2>Ask Verity</h2>
-          {messages.length > 0 && (
-            <button className="btn btn-ghost" style={{ fontSize: '0.8rem' }} onClick={clearMessages}>
-              Clear chat
-            </button>
-          )}
+          <div className="panel-title-group">
+            <MessageSquareQuote size={18} className="panel-header-icon highlight" />
+            <h2>Ask Verity (Grounded Q&A)</h2>
+          </div>
+          <div className="chat-header-actions">
+            {messages.length > 0 && (
+              <>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={handleExportChat}
+                  title="Export conversation as text"
+                >
+                  <Download size={13} />
+                  <span>Export</span>
+                </button>
+                <button
+                  className="btn btn-ghost btn-sm text-muted"
+                  onClick={clearMessages}
+                  title="Clear chat messages"
+                >
+                  <Trash2 size={13} />
+                  <span>Clear</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="chat-messages-area">
           {!docLoaded && (
             <div className="empty-state">
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>◷</div>
-              <h3>Load a document to start</h3>
-              <p>Every answer will be grounded in your document's actual text.</p>
+              <div className="empty-state-icon-wrap">
+                <MessageSquareQuote size={28} />
+              </div>
+              <h3>Load a document to start asking questions</h3>
+              <p>
+                Every answer will cite verbatim excerpts directly from your agreement to ensure maximum accuracy and transparency.
+              </p>
             </div>
           )}
 
           {docLoaded && messages.length === 0 && (
-            <div className="chat-welcome">
-              <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>◷</div>
-              <p>Ask anything about your document. Try:</p>
-              <div className="sample-questions">
-                {SAMPLE_QUESTIONS.map((q, i) => (
-                  <button
-                    key={i}
-                    className="sample-question-btn"
-                    onClick={() => { setQuestion(q); }}
-                  >
-                    {q}
-                  </button>
-                ))}
+            <div className="chat-welcome animate-fade-in">
+              <div className="welcome-hero-circle">
+                <Sparkles size={24} />
+              </div>
+              <h3>What would you like to know about this agreement?</h3>
+              <p>
+                Select a common legal question below or type your own question into the prompt bar.
+              </p>
+
+              <div className="question-category-groups">
+                {QUESTION_CATEGORIES.map((cat, i) => {
+                  const CatIcon = cat.icon
+                  return (
+                    <div key={i} className="category-group-card">
+                      <div className="category-group-title">
+                        <CatIcon size={14} className="cat-group-icon" />
+                        <span>{cat.category}</span>
+                      </div>
+                      <div className="sample-question-chips">
+                        {cat.questions.map((q, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            className="sample-chip"
+                            onClick={() => {
+                              setQuestion(q)
+                            }}
+                          >
+                            <span>{q}</span>
+                            <ArrowRight size={12} className="chip-arrow" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -154,14 +291,22 @@ export default function AskTab({ preloadedText }) {
         </div>
 
         <div className="chat-input-area">
-          {error && <div className="error-message" style={{ marginBottom: '0.5rem', fontSize: '0.82rem' }}>{error}</div>}
+          {error && (
+            <div className="error-message" style={{ marginBottom: '0.65rem' }}>
+              {error}
+            </div>
+          )}
           <div className="chat-input-row">
             <textarea
               className="chat-textarea"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={docLoaded ? 'Ask a question about your document… (Enter to send)' : 'Load a document first'}
+              placeholder={
+                docLoaded
+                  ? 'Ask anything about your document… (Enter to send, Shift+Enter for new line)'
+                  : 'Please load a document on the left first'
+              }
               disabled={!docLoaded || streaming}
               rows={2}
             />
@@ -169,13 +314,16 @@ export default function AskTab({ preloadedText }) {
               className="btn btn-primary send-btn"
               onClick={handleSend}
               disabled={!question.trim() || streaming || !docLoaded}
+              title="Send question"
             >
-              {streaming ? <span className="spinner" /> : '→'}
+              {streaming ? <span className="spinner" /> : <Send size={16} />}
             </button>
           </div>
-          <p className="chat-disclaimer">
-            Answers are grounded in your document. Verity may make mistakes — consult a lawyer for anything consequential.
-          </p>
+          <div className="chat-disclaimer-bar">
+            <span>
+              ℹ Answers are strictly grounded in the document text and include verbatim quotes where available.
+            </span>
+          </div>
         </div>
       </div>
     </div>
