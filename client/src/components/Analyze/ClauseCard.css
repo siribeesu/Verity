@@ -2,15 +2,17 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: 1.15rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  transition: box-shadow 0.15s;
+  gap: 0.85rem;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .clause-card:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--color-border-strong);
 }
 
 .clause-card.risk-high {
@@ -20,62 +22,174 @@
   border-left: 4px solid var(--color-risk-medium);
 }
 .clause-card.risk-low {
-  border-left: 4px solid var(--color-risk-low-border);
+  border-left: 4px solid var(--color-risk-low);
 }
 
 .clause-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: 1rem;
 }
 
 .clause-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.clause-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .clause-title {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0;
+  line-height: 1.35;
+}
+
+.clause-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.clause-action-btn {
+  padding: 4px 6px;
+  height: 28px;
+  color: var(--color-text-muted);
+}
+.clause-action-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.clause-ask-btn {
+  padding: 3px 8px;
+  font-size: 0.76rem;
+  height: 28px;
+  gap: 4px;
+}
+
+.clause-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.explanation-box {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.95rem;
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0.35rem;
+}
+
+.sparkle-ai-icon {
+  color: var(--color-accent);
+}
+
+.box-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
 }
 
 .clause-explanation {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--color-text-secondary);
-  line-height: 1.65;
+  line-height: 1.6;
   margin: 0;
 }
 
-.ai-label {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  font-weight: 500;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.risk-reason-box {
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.95rem;
+  border: 1px solid transparent;
+}
+
+.risk-reason-box.risk-high {
+  background: var(--color-risk-high-bg);
+  border-color: var(--color-risk-high-border);
+}
+.risk-reason-box.risk-high .risk-reason-icon {
+  color: var(--color-risk-high);
+}
+
+.risk-reason-box.risk-medium {
+  background: var(--color-risk-medium-bg);
+  border-color: var(--color-risk-medium-border);
+}
+.risk-reason-box.risk-medium .risk-reason-icon {
+  color: var(--color-risk-medium);
+}
+
+.risk-reason-box.risk-low {
+  background: var(--color-risk-low-bg);
+  border-color: var(--color-risk-low-border);
+}
+.risk-reason-box.risk-low .risk-reason-icon {
+  color: var(--color-risk-low);
+}
+
+.risk-reason-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 0.25rem;
 }
 
 .clause-risk-reason {
   font-size: 0.82rem;
-  color: var(--color-text-muted);
-  font-style: italic;
+  line-height: 1.55;
   margin: 0;
-  padding-top: var(--space-1);
-  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
 }
 
-.clause-excerpt-section {
+.clause-excerpt-wrapper {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 0.4rem;
+  margin-top: 2px;
 }
 
-.excerpt-block {
-  margin: 0;
+.excerpt-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.excerpt-toggle-btn {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+.excerpt-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.quote-icon {
+  color: var(--color-accent);
+  opacity: 0.7;
+}
+
+.copy-excerpt-btn {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  height: 22px;
+  color: var(--color-text-muted);
 }
