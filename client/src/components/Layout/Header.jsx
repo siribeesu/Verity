@@ -5,8 +5,7 @@ import {
   MessageSquareQuote,
   Scale,
   ShieldCheck,
-  Home,
-  ArrowRight
+  Home
 } from 'lucide-react'
 import DisclaimerBanner from './DisclaimerBanner'
 import './Header.css'
@@ -66,16 +65,6 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
               )
             })}
           </nav>
-
-          {activeTab === 'landing' && (
-            <button
-              className="btn btn-primary btn-sm header-launch-btn"
-              onClick={() => onTabChange('analyze')}
-            >
-              <span>Launch App</span>
-              <ArrowRight size={13} />
-            </button>
-          )}
         </div>
       </div>
     </header>

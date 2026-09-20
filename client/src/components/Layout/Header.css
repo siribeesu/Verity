@@ -144,11 +144,6 @@
   right: 6px;
 }
 
-.header-launch-btn {
-  white-space: nowrap;
-  padding: 0.45rem 0.9rem;
-}
-
 @media (max-width: 900px) {
   .header-inner {
     flex-direction: column;
