@@ -4,9 +4,9 @@ import {
   GitCompare,
   MessageSquareQuote,
   Scale,
-  ShieldCheck,
   Home
 } from 'lucide-react'
+import Logo from './Logo'
 import DisclaimerBanner from './DisclaimerBanner'
 import './Header.css'
 
@@ -31,7 +31,7 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
           tabIndex={0}
         >
           <div className="brand-icon-wrap">
-            <ShieldCheck className="brand-logo-icon" size={22} />
+            <Logo size={22} className="brand-logo-icon" />
           </div>
           <h1 className="brand-name">LegalAssist</h1>
         </div>

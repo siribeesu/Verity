@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
+import Logo from '../Layout/Logo'
 import './LandingPage.css'
 
 export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
@@ -277,7 +278,7 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
       <footer className="landing-footer">
         <div className="footer-inner">
           <div className="footer-brand">
-            <ShieldCheck size={20} className="footer-logo-icon" />
+            <Logo size={20} className="footer-logo-icon" />
             <span className="footer-brand-name">LegalAssist</span>
             <span className="footer-tagline">— Legal Document Clarity Assistant</span>
           </div>
