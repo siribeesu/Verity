@@ -33,10 +33,10 @@
   align-items: center;
   gap: 4px;
   font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--color-success);
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success-border);
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
   border-radius: var(--radius-full);
   padding: 2px 8px;
 }
@@ -128,18 +128,19 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-accent-border);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent-dark);
+  color: var(--color-primary);
   margin-bottom: 0.75rem;
 }
 
 .chat-welcome h3 {
   font-size: 1.15rem;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-secondary);
   margin-bottom: 0.35rem;
 }
 
@@ -174,11 +175,11 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--color-text-muted);
+  color: var(--color-secondary);
 }
 
 .cat-group-icon {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .sample-question-chips {
@@ -205,14 +206,14 @@
 }
 
 .sample-chip:hover {
-  background: var(--color-accent-light);
-  border-color: var(--color-accent-border);
-  color: var(--color-accent-dark);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
   transform: translateX(2px);
 }
 
 .chip-arrow {
-  color: var(--color-accent);
+  color: var(--color-primary);
   opacity: 0.6;
   flex-shrink: 0;
 }

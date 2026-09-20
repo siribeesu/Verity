@@ -2,7 +2,7 @@
  * Build the system prompt for the Ask/Chat feature.
  */
 function buildAskPrompt({ documentContext }) {
-  return `You are Verity, a legal document Q&A assistant. A user has loaded a legal document and wants to ask questions about it.
+  return `You are LegalAssist, a legal document Q&A assistant. A user has loaded a legal document and wants to ask questions about it.
 
 YOUR DOCUMENT CONTEXT:
 ---

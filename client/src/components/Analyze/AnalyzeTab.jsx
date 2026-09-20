@@ -374,7 +374,7 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
                   <div>
                     <h3>Ready to consult an attorney?</h3>
                     <p>
-                      Verity can transform the {highRiskCount + mediumRiskCount} flagged risk points into a customized question list to bring to your legal consultation.
+                      LegalAssist can transform the {highRiskCount + mediumRiskCount} flagged risk points into a customized question list to bring to your legal consultation.
                     </p>
                   </div>
                 </div>

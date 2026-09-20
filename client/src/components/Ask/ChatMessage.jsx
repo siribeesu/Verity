@@ -29,7 +29,7 @@ export default function ChatMessage({ message }) {
           <div className={`author-avatar ${isUser ? 'user-avatar' : 'assistant-avatar'}`}>
             {isUser ? <User size={13} /> : <ShieldCheck size={13} />}
           </div>
-          <span className="author-name">{isUser ? 'You' : 'Verity Assistant'}</span>
+          <span className="author-name">{isUser ? 'You' : 'LegalAssist Assistant'}</span>
           {!isUser && (
             <span className="ai-label">
               <Sparkles size={10} />

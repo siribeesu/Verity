@@ -101,7 +101,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
     if (!messages.length) return
     const formatted = messages
       .map((m) => {
-        const role = m.role === 'user' ? 'USER' : 'VERITY ASSISTANT'
+        const role = m.role === 'user' ? 'USER' : 'LEGALASSIST ASSISTANT'
         let text = `[${role}]:\n${m.content}\n`
         if (m.excerpt) {
           text += `(Cited Excerpt: "${m.excerpt}")\n`
@@ -114,7 +114,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `verity-document-chat-${new Date().toISOString().slice(0, 10)}.txt`
+    a.download = `legalassist-document-chat-${new Date().toISOString().slice(0, 10)}.txt`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -202,7 +202,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
         <div className="panel-header">
           <div className="panel-title-group">
             <MessageSquareQuote size={18} className="panel-header-icon highlight" />
-            <h2>Ask Verity (Grounded Q&A)</h2>
+            <h2>Ask LegalAssist (Grounded Q&A)</h2>
           </div>
           <div className="chat-header-actions">
             {messages.length > 0 && (

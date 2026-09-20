@@ -41,19 +41,19 @@
 }
 
 .user-avatar {
-  background: var(--color-accent-light);
-  color: var(--color-accent-dark);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .assistant-avatar {
-  background: #3b82f6;
+  background: var(--color-secondary);
   color: #ffffff;
 }
 
 .author-name {
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-secondary);
 }
 
 .msg-copy-btn {
@@ -72,8 +72,8 @@
 }
 
 .chat-message.user .message-bubble {
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  color: #ffffff;
   border-bottom-right-radius: 4px;
 }
 
@@ -114,7 +114,7 @@
   color: var(--color-text-muted);
 }
 .excerpt-toggle:hover {
-  color: var(--color-text-primary);
+  color: var(--color-secondary);
 }
 
 .copy-quote-btn {
@@ -127,8 +127,8 @@
 .message-excerpt-quote {
   margin: 0 4px;
   font-size: 0.8rem;
-  background: #f8fafc;
-  border-left-color: var(--color-accent);
+  background: var(--color-secondary-subtle);
+  border-left-color: var(--color-primary);
 }
 
 .no-excerpt-note {
@@ -146,7 +146,7 @@
   display: inline-block;
   margin-left: 4px;
   animation: blink 0.8s infinite;
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 @keyframes blink {

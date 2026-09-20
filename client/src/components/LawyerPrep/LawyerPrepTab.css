@@ -18,25 +18,27 @@
   align-items: flex-start;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-  border: 1px solid var(--color-accent-border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
 }
 
 .hero-icon-circle {
   width: 52px;
   height: 52px;
   border-radius: var(--radius-md);
-  background: var(--color-accent);
-  color: #ffffff;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
 }
 
 .hero-content h1 {
   font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-secondary);
   margin-bottom: 0.35rem;
 }
 
@@ -49,8 +51,8 @@
 
 .lawyer-framing {
   padding: 1rem 1.25rem;
-  background: var(--color-disclaimer-bg);
-  border: 1px solid var(--color-disclaimer-border);
+  background: var(--color-secondary-subtle);
+  border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -63,19 +65,19 @@
 }
 
 .framing-icon {
-  color: var(--color-disclaimer-text);
+  color: var(--color-primary);
 }
 
 .framing-header h3 {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-disclaimer-text);
+  color: var(--color-secondary);
   margin: 0;
 }
 
 .lawyer-framing p {
   font-size: 0.82rem;
-  color: var(--color-disclaimer-text);
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.55;
 }
@@ -102,15 +104,17 @@
 
 .questions-title-group h2 {
   font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-secondary);
   margin: 0;
 }
 
 .questions-badge {
   font-size: 0.72rem;
-  font-weight: 600;
-  background: var(--color-accent-light);
-  color: var(--color-accent-dark);
-  border: 1px solid var(--color-accent-border);
+  font-weight: 700;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   padding: 1px 7px;
   border-radius: var(--radius-full);
 }
@@ -145,7 +149,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--color-primary);
   color: white;
   font-size: 0.82rem;
   font-weight: 700;
@@ -163,8 +167,8 @@
 
 .question-text {
   font-size: 0.96rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-secondary);
   line-height: 1.5;
   margin: 0;
 }
@@ -173,7 +177,7 @@
   padding: 0.75rem 0.95rem;
   background: var(--color-bg);
   border-radius: var(--radius-md);
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--color-primary);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -184,7 +188,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-accent-dark);
+  color: var(--color-primary);
 }
 
 .why-matters-box p {
@@ -204,14 +208,14 @@
   padding: 2px 6px;
 }
 .add-note-btn:hover {
-  color: var(--color-text-primary);
+  color: var(--color-secondary);
 }
 
 .notes-editor {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  background: #f8fafc;
+  background: var(--color-secondary-subtle);
   border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-md);
   padding: 0.65rem 0.85rem;
@@ -219,8 +223,8 @@
 
 .notes-label {
   font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-weight: 700;
+  color: var(--color-secondary);
   margin-bottom: 0;
 }
 
@@ -246,12 +250,13 @@
 }
 
 .resources-icon {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .resources-header h3 {
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--color-secondary);
   margin: 0;
 }
 

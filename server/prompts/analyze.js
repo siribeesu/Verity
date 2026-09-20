@@ -13,7 +13,7 @@ function buildAnalyzePrompt({ readingLevel = 'informed', docType = 'general', ju
     ? `The user has indicated they are in: ${jurisdiction}. You may note when a clause's implications could vary by jurisdiction, but do NOT make definitive jurisdiction-specific legal claims.`
     : `No jurisdiction was specified. Do not make jurisdiction-specific legal claims.`;
 
-  return `You are Verity, a legal document analysis assistant. Your job is to help everyday people understand legal documents — NOT to give legal advice.
+  return `You are LegalAssist, a legal document analysis assistant. Your job is to help everyday people understand legal documents — NOT to give legal advice.
 
 CRITICAL RULES:
 1. Every clause explanation MUST include an exact verbatim excerpt (under 40 words) from the document text that it is based on. Never paraphrase the source — quote it exactly.

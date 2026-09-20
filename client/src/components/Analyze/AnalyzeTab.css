@@ -44,35 +44,35 @@
 }
 
 .panel-header-icon.highlight {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .panel-header h2 {
   font-size: 0.98rem;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-sans);
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--color-secondary);
 }
 
 .step-pill {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background: var(--color-badge-bg);
-  color: var(--color-badge-text);
-  border: 1px solid var(--color-badge-border);
+  background: var(--color-secondary-subtle);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-border);
   padding: 2px 7px;
   border-radius: var(--radius-full);
 }
 
 .results-badge {
   font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--color-accent-light);
-  color: var(--color-accent-dark);
-  border: 1px solid var(--color-accent-border);
+  font-weight: 700;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
   padding: 2px 8px;
   border-radius: var(--radius-full);
 }
@@ -105,13 +105,14 @@
 }
 
 .controls-icon {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .controls-card-header h3 {
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
+  color: var(--color-secondary);
 }
 
 .controls-grid {
@@ -136,7 +137,7 @@
   justify-content: center;
   padding: 0.75rem 1.25rem;
   font-size: 0.96rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--radius-md);
   margin-top: 0.25rem;
 }
@@ -165,13 +166,12 @@
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent);
-  box-shadow: var(--shadow-sm);
+  color: var(--color-primary);
 }
 
 .loading-lg {
@@ -217,6 +217,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   margin: 0.2rem 0 0 0;
+  color: var(--color-secondary);
 }
 
 .summary-text {
@@ -245,8 +246,8 @@
   align-items: center;
   gap: 0.45rem;
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-weight: 700;
+  color: var(--color-secondary);
 }
 
 .risk-dash-hint {
@@ -271,18 +272,17 @@
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.16s ease;
   font-family: var(--font-sans);
 }
 
 .risk-summary-cell:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--color-primary);
 }
 
 .risk-summary-cell.risk-all.active {
-  border-color: var(--color-accent);
-  background: var(--color-accent-light);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .risk-summary-cell.risk-high {
@@ -318,14 +318,14 @@
 .risk-summary-cell.risk-high .risk-count { color: var(--color-risk-high); }
 .risk-summary-cell.risk-medium .risk-count { color: var(--color-risk-medium); }
 .risk-summary-cell.risk-low .risk-count { color: var(--color-risk-low); }
-.risk-summary-cell.risk-all .risk-count { color: var(--color-text-primary); }
+.risk-summary-cell.risk-all .risk-count { color: var(--color-secondary); }
 
 .risk-label-text {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--color-text-muted);
@@ -389,9 +389,8 @@
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
-  border: 1px solid var(--color-accent-border);
-  box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary-border);
 }
 
 .lawyer-cta-left {
@@ -404,19 +403,20 @@
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-accent-border);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-accent-dark);
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .lawyer-prep-cta h3 {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.25rem;
+  color: var(--color-secondary);
 }
 
 .lawyer-prep-cta p {

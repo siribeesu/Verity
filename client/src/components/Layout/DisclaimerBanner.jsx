@@ -12,7 +12,7 @@ export default function DisclaimerBanner() {
       <div className="disclaimer-content">
         <Info size={15} className="disclaimer-icon" />
         <p>
-          <strong>Informational clarity only:</strong> Verity explains document text and cites verbatim source excerpts. It does not provide legal advice, is not jurisdiction-certified, and is not a substitute for a licensed attorney.
+          <strong>Informational clarity only:</strong> LegalAssist explains document text and cites verbatim source excerpts. It does not provide legal advice, is not jurisdiction-certified, and is not a substitute for a licensed attorney.
         </p>
       </div>
       <button
