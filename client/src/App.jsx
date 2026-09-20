@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Header from './components/Layout/Header'
+import LandingPage from './components/Landing/LandingPage'
 import AnalyzeTab from './components/Analyze/AnalyzeTab'
 import CompareTab from './components/Compare/CompareTab'
 import AskTab from './components/Ask/AskTab'
@@ -7,7 +8,7 @@ import LawyerPrepTab from './components/LawyerPrep/LawyerPrepTab'
 import './App.css'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('analyze')
+  const [activeTab, setActiveTab] = useState('landing')
   // Shared state: analysis result flows into Ask and LawyerPrep
   const [analyzeResult, setAnalyzeResult] = useState(null)
   const [analyzedDocText, setAnalyzedDocText] = useState('')
@@ -32,6 +33,11 @@ export default function App() {
     setActiveTab('ask')
   }
 
+  function handleLaunchWithSample(sample) {
+    setAnalyzedDocText(sample.text)
+    setActiveTab('analyze')
+  }
+
   return (
     <div className="app">
       <Header
@@ -41,6 +47,12 @@ export default function App() {
       />
 
       <main className="app-main" role="main">
+        {activeTab === 'landing' && (
+          <LandingPage
+            onLaunchApp={setActiveTab}
+            onLaunchWithSample={handleLaunchWithSample}
+          />
+        )}
         {activeTab === 'analyze' && (
           <AnalyzeTab
             onAnalysisComplete={handleAnalysisComplete}
@@ -56,7 +68,10 @@ export default function App() {
           />
         )}
         {activeTab === 'lawyer-prep' && (
-          <LawyerPrepTab analyzeResult={analyzeResult} />
+          <LawyerPrepTab
+            analyzeResult={analyzeResult}
+            onRunSampleAnalyze={handleLaunchWithSample}
+          />
         )}
       </main>
     </div>
