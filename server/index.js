@@ -15,6 +15,7 @@ const analyzeRoute = require('./routes/analyze');
 const compareRoute = require('./routes/compare');
 const askRoute = require('./routes/ask');
 const lawyerPrepRoute = require('./routes/lawyerPrep');
+const complianceRoute = require('./routes/compliance');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -212,6 +213,7 @@ app.use('/api/analyze', analyzeRoute);
 app.use('/api/compare', compareRoute);
 app.use('/api/ask', askRoute);
 app.use('/api/lawyer-prep', lawyerPrepRoute);
+app.use('/api/compliance', complianceRoute);
 
 // Serve built frontend assets when running in unified production/container mode
 const path = require('path');

@@ -1,17 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   FileSearch,
   GitCompare,
   MessageSquareQuote,
   Scale,
   Home,
-  LogOut
+  LogOut,
+  ShieldCheck
 } from 'lucide-react'
 import Logo from './Logo'
 import DisclaimerBanner from './DisclaimerBanner'
+import ComplianceModal from './ComplianceModal'
 import './Header.css'
 
 export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, accountLabel, onSignOut }) {
+  const [showCompliance, setShowCompliance] = useState(false)
   const tabs = [
     { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
     { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
@@ -68,8 +71,21 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, account
               )
             })}
           </nav>
+
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm compliance-nav-btn"
+            onClick={() => setShowCompliance(true)}
+            title="Privacy, zero-retention policy, and audit trail"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.4rem', color: 'var(--color-primary)' }}
+          >
+            <ShieldCheck size={15} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Privacy & Trust</span>
+          </button>
         </div>
       </div>
+
+      <ComplianceModal isOpen={showCompliance} onClose={() => setShowCompliance(false)} />
     </header>
   )
 }

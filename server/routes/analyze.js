@@ -9,6 +9,7 @@ const { MAX_DOCUMENT_CHARS, MAX_UPLOAD_BYTES } = require('../services/documentLi
 const { buildAnalyzePrompt } = require('../prompts/analyze');
 const { sanitizePII } = require('../services/piiSanitizer');
 const { generateCacheKey, getCachedAnalysis, setCachedAnalysis } = require('../services/analysisCache');
+const { logAuditEvent } = require('../services/auditLogger');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
@@ -59,6 +60,12 @@ router.post('/', upload.single('document'), async (req, res, next) => {
       });
       const finalResult = { ...result, chunkCount: 1, piiRedactionsCount: redactionsCount };
       setCachedAnalysis(cacheKey, finalResult);
+      logAuditEvent({
+        action: 'DOCUMENT_ANALYSIS',
+        ip: req.ip,
+        piiCount: redactionsCount,
+        details: { docType, readingLevel, jurisdiction, chunks: 1 },
+      });
       return res.json(finalResult);
     }
 
