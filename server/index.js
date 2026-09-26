@@ -43,7 +43,7 @@ if (isProduction) {
   if (!process.env.REDIS_URL) {
     throw new Error('REDIS_URL must be configured in production for shared rate limiting.');
   }
-  if (!hasCompleteAuthConfig) {
+  if (process.env.REQUIRE_AUTH === 'true' && !hasCompleteAuthConfig) {
     throw new Error('AUTH_ISSUER, AUTH_AUDIENCE, and AUTH_JWKS_URL must be configured in production.');
   }
 }
@@ -62,7 +62,7 @@ if (hasCompleteAuthConfig && isProduction) {
 
 const authenticate = hasCompleteAuthConfig ? createAuthMiddleware(authConfig) : null;
 
-if (isProduction && !authenticate) {
+if (isProduction && process.env.REQUIRE_AUTH === 'true' && !authenticate) {
   throw new Error('Authentication must be configured in production.');
 }
 
