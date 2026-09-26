@@ -21,6 +21,33 @@ The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also pro
 - **Browser history**: analyses of pasted text are saved in browser local storage on the device for the in-app history feature. Clear that history in the app or clear the browser's site data to remove it. Uploaded files are processed in server memory and are not written to server disk.
 - **PII masking is optional**: the mask control applies to pasted text only; uploaded files are not automatically redacted. Review and redact sensitive details before submitting files when appropriate.
 
+## Basic Security Review
+
+### Secrets
+
+- `server/.env` is ignored by Git; `server/.env.example` contains placeholders. Keep provider keys in the server environment or deployment secret settings, never in client code or committed files.
+- If a key is accidentally exposed, revoke it with the provider and replace it. Removing it from a file or commit does not invalidate the exposed key.
+- The configured provider receives document text to generate results. Apply the provider's data-handling terms to any documents you submit.
+
+### CORS and API Access
+
+- The server only returns CORS permission for origins listed in `CORS_ORIGINS`, a comma-separated list of exact origins such as `https://app.example.com`. Leave it blank for the same-origin Vercel deployment or the local Vite proxy. Set it when a separately hosted browser frontend needs to call the API.
+- CORS is a browser policy, not authentication. The API endpoints do not require a user login, so they can still be called directly by scripts or other servers. Use an authentication layer or API gateway before exposing a private deployment.
+
+### Rate Limits and Uploads
+
+- The API currently allows up to 200 requests per client IP per 15-minute window. JSON request bodies are limited to 10 MB, and PDF, DOCX, and TXT uploads are limited to 20 MB.
+- The rate limiter uses its default in-memory store. Its counts are not shared across server instances and can reset on restart, so it is not a reliable distributed quota for a scaled or serverless deployment. Configure a shared rate-limit store or an upstream API gateway, and set provider spending limits before public launch.
+
+## Deployment Checklist
+
+- Add `PROVIDER` and the matching provider API key as server-side environment variables for each deployment environment. Add model overrides only when needed.
+- Confirm `CORS_ORIGINS` contains only the exact frontend origins when frontend and API are hosted separately. Do not treat CORS as a substitute for authentication.
+- Configure a shared rate-limit store or gateway for multi-instance/serverless production, and review request quotas and provider spending limits.
+- Run `npm test` and `npm run build` before deployment.
+- Deploy using the repository's Vercel configuration, then check `/api/health` and smoke-test analysis, comparison, document Q&A, and lawyer-prep flows with non-sensitive documents.
+- Confirm production secrets are configured in the hosting dashboard and are not present in client bundles, logs, or committed files.
+
 ## Setup and Run
 
 ### Prerequisites

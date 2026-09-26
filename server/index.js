@@ -14,8 +14,18 @@ const lawyerPrepRoute = require('./routes/lawyerPrep');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware - allow all valid origins with credentials for local and Vercel cloud deployment
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigins = new Set(
+  (process.env.CORS_ORIGINS || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
+
+app.use(cors({
+  origin(origin, callback) {
+    callback(null, !origin || allowedOrigins.has(origin));
+  },
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
