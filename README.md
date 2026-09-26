@@ -93,7 +93,6 @@ Local development does not require OIDC; the API permits unauthenticated local r
 The example configures `PORT=3001` and `NODE_ENV=development`. The frontend's Vite server runs on port 5173 and proxies `/api` requests to the backend.
 
 ### 3. Start the app
-
 From the repository root:
 
 ```sh
