@@ -210,3 +210,59 @@ test('lawyer prep requires clauses and sends risk-focused analysis context', asy
   assert.doesNotMatch(structuredCalls[0].userContent, /Heading/);
   assert.match(structuredCalls[0].userContent, /Confirm the fee cap/);
 });
+
+test('ask sanitizes PII from user questions and documents before retrieval', async () => {
+  const response = await fetch(`${baseUrl}/api/ask`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: 'My SSN is 000-11-2222 and my lease starts on January 1st with monthly rent.',
+      question: 'Call me at (555) 987-6543 about my SSN 000-11-2222?',
+    }),
+  });
+  await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(streamCalls[0].messages.at(-1).content, /\[REDACTED PHONE\]/);
+  assert.match(streamCalls[0].messages.at(-1).content, /\[REDACTED SSN\]/);
+  assert.doesNotMatch(streamCalls[0].messages.at(-1).content, /000-11-2222/);
+  assert.doesNotMatch(streamCalls[0].messages.at(-1).content, /\(555\) 987-6543/);
+});
+
+test('compare returns cached results on repeated queries without invoking model', async () => {
+  structuredImplementation = async () => ({ overview: 'Identical terms.', differences: [] });
+  const docA = `${validDocument} Version A terms.`;
+  const docB = `${validDocument} Version B terms.`;
+
+  const first = await postJson('/api/compare', { textA: docA, textB: docB });
+  assert.equal(first.response.status, 200);
+  const callCount = structuredCalls.length;
+
+  const second = await postJson('/api/compare', { textA: docA, textB: docB });
+  assert.equal(second.response.status, 200);
+  assert.equal(second.body.fromCache, true);
+  assert.equal(structuredCalls.length, callCount); // no new LLM calls made!
+});
+
+test('lawyer-prep sanitizes PII and caches repeated requests', async () => {
+  structuredImplementation = async () => ({ questions: [{ question: 'Consult on indemnification.' }] });
+  const analyzeData = {
+    summary: 'Lease for John Doe (SSN 111-22-3333).',
+    clauses: [
+      { title: 'Indemnity', category: 'Liability', explanation: 'Contact john@example.com for claims.', original_excerpt: 'Notice to (555) 123-4567.', risk: 'high' }
+    ],
+  };
+
+  const first = await postJson('/api/lawyer-prep', { analyzeResult: analyzeData });
+  assert.equal(first.response.status, 200);
+  assert.match(structuredCalls.at(-1).userContent, /\[REDACTED SSN\]/);
+  assert.match(structuredCalls.at(-1).userContent, /\[REDACTED EMAIL\]/);
+  assert.match(structuredCalls.at(-1).userContent, /\[REDACTED PHONE\]/);
+  assert.doesNotMatch(structuredCalls.at(-1).userContent, /111-22-3333/);
+
+  const callCount = structuredCalls.length;
+  const second = await postJson('/api/lawyer-prep', { analyzeResult: analyzeData });
+  assert.equal(second.response.status, 200);
+  assert.equal(second.body.fromCache, true);
+  assert.equal(structuredCalls.length, callCount);
+});

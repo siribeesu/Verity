@@ -38,6 +38,13 @@ function sanitizePII(text) {
     return '[REDACTED PHONE]';
   });
 
+  // 5. Script and dangerous executable HTML tags
+  const scriptRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+  sanitized = sanitized.replace(scriptRegex, () => {
+    count++;
+    return '[REDACTED SCRIPT]';
+  });
+
   return {
     sanitizedText: sanitized,
     redactionsCount: count,

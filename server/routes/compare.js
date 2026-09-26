@@ -7,6 +7,7 @@ const { parseFile } = require('../services/documentParser');
 const { MAX_DOCUMENT_CHARS, MAX_UPLOAD_BYTES } = require('../services/documentLimits');
 const { buildComparePrompt } = require('../prompts/compare');
 const { sanitizePII } = require('../services/piiSanitizer');
+const { generateCacheKey, getCachedAnalysis, setCachedAnalysis } = require('../services/analysisCache');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
@@ -41,6 +42,13 @@ router.post('/', upload.fields([{ name: 'documentA', maxCount: 1 }, { name: 'doc
     const { sanitizedText: cleanA } = sanitizePII(textA);
     const { sanitizedText: cleanB } = sanitizePII(textB);
 
+    // Cache check for Document Comparison
+    const cacheKey = generateCacheKey({ type: 'compare', docType, cleanA, cleanB });
+    const cached = getCachedAnalysis(cacheKey);
+    if (cached) {
+      return res.json({ ...cached, fromCache: true });
+    }
+
     const systemPrompt = buildComparePrompt({ docType });
 
     const result = await structuredCompletion({
@@ -49,6 +57,7 @@ router.post('/', upload.fields([{ name: 'documentA', maxCount: 1 }, { name: 'doc
       maxTokens: 4096,
     });
 
+    setCachedAnalysis(cacheKey, result);
     return res.json(result);
   } catch (err) {
     next(err);
