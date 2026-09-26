@@ -2,35 +2,91 @@
 
 LegalAssist is a GenAI-powered web app that helps everyday people understand, compare, and navigate legal documents — without replacing a lawyer.
 
-## Quick Start
+## What the Project Does
+
+LegalAssist accepts legal text or a supported document file and uses a selected AI provider to make the content easier to review. It is organized around four tools:
+
+- **Analyze**: produces a plain-language summary, clause explanations, risk levels, key-term definitions, and suggested action items. Where possible, clause explanations include a quotation from the source document.
+- **Compare**: compares two document versions and describes material changes to terms, obligations, or risks.
+- **Ask**: answers questions about a loaded document, streams the response, and presents a relevant source excerpt when available.
+- **Lawyer Prep**: turns flagged clauses and key terms from an analysis into focused questions to discuss with an attorney.
+
+The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also provides optional PII masking for pasted text before submission. The backend can use Anthropic, OpenAI, Google Gemini, or xAI Grok; configure one provider and its API key in `server/.env`.
+
+## Important Cautions
+
+- **Not legal advice**: LegalAssist is an informational tool, not a law firm or a substitute for advice from a licensed attorney. It does not determine whether a document or clause is legally valid in your jurisdiction.
+- **AI can be wrong**: summaries, risk labels, and answers may be incomplete or inaccurate. Check quotations against the original document and have important terms reviewed by a qualified lawyer.
+- **Your text is sent to an AI provider**: document content is sent to the provider configured by the application to generate results. Review that provider's privacy policy and terms before submitting confidential or sensitive documents.
+- **Browser history**: analyses of pasted text are saved in browser local storage on the device for the in-app history feature. Clear that history in the app or clear the browser's site data to remove it. Uploaded files are processed in server memory and are not written to server disk.
+- **PII masking is optional**: the mask control applies to pasted text only; uploaded files are not automatically redacted. Review and redact sensitive details before submitting files when appropriate.
+
+## Setup and Run
+
+### Prerequisites
+
+- Node.js 18 or newer and npm.
+- An API key for one supported LLM provider: Anthropic, OpenAI, Google Gemini, or xAI Grok.
 
 ### 1. Install dependencies
 
-```bash
+From the repository root, run:
+
+```sh
 npm run install:all
 ```
 
-### 2. Configure your API key
+### 2. Create the server environment file
 
-```bash
+PowerShell:
+
+```powershell
+Copy-Item server/.env.example server/.env
+```
+
+macOS/Linux:
+
+```sh
 cp server/.env.example server/.env
 ```
 
-Edit `server/.env` and add your API key:
+Open `server/.env` and set `PROVIDER` to `anthropic`, `openai`, `gemini`, or `grok`. Add a valid API key to the matching variable (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `GROK_API_KEY`). Leave the other provider keys blank. Model names can be changed with the corresponding `*_MODEL` variable; the example file lists defaults. Keep real API keys private and do not commit `server/.env`.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
-PORT=3001
-```
+The example configures `PORT=3001` and `NODE_ENV=development`. The frontend's Vite server runs on port 5173 and proxies `/api` requests to the backend.
 
-### 3. Run the development server
+### 3. Start the app
 
-```bash
+From the repository root:
+
+```sh
 npm run dev
 ```
 
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3001
+Open the frontend at <http://localhost:5173>. The API server runs at <http://localhost:3001>; its health endpoint is <http://localhost:3001/api/health>.
+
+To run services separately, use two terminals from the repository root:
+
+```sh
+npm run dev:server
+```
+
+```sh
+npm run dev:client
+```
+
+### Tests and production build
+
+Run all server and client tests:
+
+```sh
+npm test
+```
+
+Build the frontend for production:
+
+```sh
+npm run build
+```
 
 ---
 
@@ -54,7 +110,7 @@ legalassist/
 └── server/          # Node.js + Express backend
     ├── routes/      # analyze, compare, ask (SSE), lawyer-prep
     ├── services/
-    │   ├── claudeClient.js   # Anthropic SDK wrapper
+    │   ├── claudeClient.js   # Multi-provider LLM client
     │   ├── documentParser.js # pdf-parse + mammoth
     │   └── chunker.js        # Section chunking + keyword retrieval
     └── prompts/     # System prompt factories per feature
