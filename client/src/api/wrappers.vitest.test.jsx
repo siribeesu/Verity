@@ -2,15 +2,17 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 const axiosMocks = vi.hoisted(() => {
   const post = vi.fn()
-  return { post, create: vi.fn(() => ({ post })) }
+  return { post, create: vi.fn(() => ({ post })), getAccessToken: vi.fn(async () => 'test-access-token') }
 })
 
 vi.mock('axios', () => ({ default: { create: axiosMocks.create } }))
+vi.mock('../auth/authClient', () => ({ getAccessToken: axiosMocks.getAccessToken }))
 
 import { analyzeDocument, compareDocuments, lawyerPrep } from './client'
 
 beforeEach(() => {
   axiosMocks.post.mockReset()
+  axiosMocks.getAccessToken.mockResolvedValue('test-access-token')
   axiosMocks.create.mockReturnValue({ post: axiosMocks.post })
   axiosMocks.post.mockResolvedValue({ data: { ok: true } })
 })
@@ -19,7 +21,9 @@ test('analyzeDocument posts JSON with no multipart headers', async () => {
   const payload = { text: 'Agreement' }
 
   await expect(analyzeDocument(payload)).resolves.toEqual({ ok: true })
-  expect(axiosMocks.post).toHaveBeenCalledWith('/analyze', payload, { headers: {} })
+  expect(axiosMocks.post).toHaveBeenCalledWith('/analyze', payload, {
+    headers: { Authorization: 'Bearer test-access-token' },
+  })
 })
 
 test('compareDocuments sets multipart headers for form data', async () => {
@@ -29,7 +33,10 @@ test('compareDocuments sets multipart headers for form data', async () => {
   await compareDocuments(payload)
 
   expect(axiosMocks.post).toHaveBeenCalledWith('/compare', payload, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: 'Bearer test-access-token',
+    },
   })
 })
 
@@ -38,5 +45,7 @@ test('lawyerPrep wraps the analysis result in the expected request body', async 
 
   await lawyerPrep(analyzeResult)
 
-  expect(axiosMocks.post).toHaveBeenCalledWith('/lawyer-prep', { analyzeResult })
+  expect(axiosMocks.post).toHaveBeenCalledWith('/lawyer-prep', { analyzeResult }, {
+    headers: { Authorization: 'Bearer test-access-token' },
+  })
 })

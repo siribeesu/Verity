@@ -11,14 +11,14 @@ LegalAssist accepts legal text or a supported document file and uses a selected 
 - **Ask**: answers questions about a loaded document, streams the response, and presents a relevant source excerpt when available.
 - **Lawyer Prep**: turns flagged clauses and key terms from an analysis into focused questions to discuss with an attorney.
 
-The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also provides optional PII masking for pasted text before submission. The backend can use Anthropic, OpenAI, Google Gemini, or xAI Grok; configure one provider and its API key in `server/.env`.
+The app accepts pasted text and PDF, DOCX, or TXT files up to 10 MB; extracted document text is capped at 80,000 characters by default. It also provides optional PII masking for pasted text before submission. The backend can use Anthropic, OpenAI, Google Gemini, or xAI Grok; configure one provider and its API key in `server/.env`.
 
 ## Important Cautions
 
 - **Not legal advice**: LegalAssist is an informational tool, not a law firm or a substitute for advice from a licensed attorney. It does not determine whether a document or clause is legally valid in your jurisdiction.
 - **AI can be wrong**: summaries, risk labels, and answers may be incomplete or inaccurate. Check quotations against the original document and have important terms reviewed by a qualified lawyer.
 - **Your text is sent to an AI provider**: document content is sent to the provider configured by the application to generate results. Review that provider's privacy policy and terms before submitting confidential or sensitive documents.
-- **Browser history**: analyses of pasted text are saved in browser local storage on the device for the in-app history feature. Clear that history in the app or clear the browser's site data to remove it. Uploaded files are processed in server memory and are not written to server disk.
+- **Browser history**: analyses of pasted text are saved in tab-scoped session storage for the in-app history feature. Sign-out clears this history; closing the tab normally clears the session. Uploaded files are processed in server memory and are not written to server disk.
 - **PII masking is optional**: the mask control applies to pasted text only; uploaded files are not automatically redacted. Review and redact sensitive details before submitting files when appropriate.
 
 ## Basic Security Review
@@ -32,16 +32,25 @@ The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also pro
 ### CORS and API Access
 
 - The server only returns CORS permission for origins listed in `CORS_ORIGINS`, a comma-separated list of exact origins such as `https://app.example.com`. Leave it blank for the same-origin Vercel deployment or the local Vite proxy. Set it when a separately hosted browser frontend needs to call the API.
-- CORS is a browser policy, not authentication. The API endpoints do not require a user login, so they can still be called directly by scripts or other servers. Use an authentication layer or API gateway before exposing a private deployment.
+- Browser CORS restrictions are not authentication. Feature API routes require an OIDC bearer token that the server verifies against the configured issuer, audience, and JWKS. `/api/health` remains public for hosting health checks.
+- The app delegates account enrollment, MFA, account recovery, and access policy to the configured OIDC identity provider. Configure those controls in that provider; never place provider secrets or API tokens in the browser bundle.
+- The OIDC SPA stores tokens in tab-scoped `sessionStorage` and uses Authorization Code + PKCE. Configure short-lived access tokens and exact redirect URLs. A backend-for-frontend with `HttpOnly`, `Secure`, `SameSite` cookies is preferable where the threat model requires tokens to be inaccessible to JavaScript.
 
 ### Rate Limits and Uploads
 
-- The API currently allows up to 200 requests per client IP per 15-minute window. JSON request bodies are limited to 10 MB, and PDF, DOCX, and TXT uploads are limited to 20 MB.
-- The rate limiter uses its default in-memory store. Its counts are not shared across server instances and can reset on restart, so it is not a reliable distributed quota for a scaled or serverless deployment. Configure a shared rate-limit store or an upstream API gateway, and set provider spending limits before public launch.
+- The API currently allows up to 200 requests per client IP and 100 requests per authenticated account per 15-minute window. JSON request bodies are limited to 2 MB, uploads to 10 MB, extracted documents to 80,000 characters each, and Ask questions to 2,000 characters. Tune document and request limits with the corresponding `MAX_*` settings.
+- Local development uses an in-memory rate-limit store. Production startup requires `REDIS_URL` and uses Redis to share rate limits across server instances. Configure Redis availability/monitoring and provider spending limits before public launch.
+- `TRUST_PROXY` controls Express proxy trust for client IP detection. The server defaults to one trusted proxy hop on Vercel; set it to the correct hop count for other hosting platforms. Do not trust forwarded IP headers from direct, untrusted traffic.
+- Helmet sets common HTTP security headers. Production startup also fails when the selected provider API key, Redis, or OIDC settings are missing. Configure `API_RATE_LIMIT_WINDOW_MS`, `API_RATE_LIMIT_MAX`, and `API_USER_RATE_LIMIT_MAX` to tune request limits.
+- Vercel applies a Content Security Policy that allows same-origin scripts and HTTPS OIDC connections; review it if adding third-party scripts, media, or integrations.
 
 ## Deployment Checklist
 
 - Add `PROVIDER` and the matching provider API key as server-side environment variables for each deployment environment. Add model overrides only when needed.
+- Register an OIDC public client with Authorization Code + PKCE. Allowlist the exact frontend callback and post-logout URLs; configure the browser `VITE_OIDC_*` values at build time and server `AUTH_ISSUER`, `AUTH_AUDIENCE`, and `AUTH_JWKS_URL` at runtime. Set `VITE_OIDC_SCOPE` to the provider's API scope and ensure issued RS256/ES256 access tokens use the configured API audience and signing keys at the JWKS URL. The SPA configuration is public; it must not contain client secrets.
+- Provision Redis and configure `REDIS_URL`; production intentionally refuses to start without the shared rate-limit store. Configure `TRUST_PROXY` for the hosting topology.
+- Configure account enrollment restrictions, MFA policy, account recovery, and user access controls in the identity provider before exposing the app publicly.
+- Set short access-token lifetimes and review whether the SPA `sessionStorage` token model meets your organization’s threat model; consider a backend-for-frontend session for highly sensitive deployments.
 - Confirm `CORS_ORIGINS` contains only the exact frontend origins when frontend and API are hosted separately. Do not treat CORS as a substitute for authentication.
 - Configure a shared rate-limit store or gateway for multi-instance/serverless production, and review request quotas and provider spending limits.
 - Run `npm test` and `npm run build` before deployment.
@@ -52,7 +61,7 @@ The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also pro
 
 ### Prerequisites
 
-- Node.js 18 or newer and npm.
+- Node.js 20 or newer and npm.
 - An API key for one supported LLM provider: Anthropic, OpenAI, Google Gemini, or xAI Grok.
 
 ### 1. Install dependencies
@@ -79,10 +88,11 @@ cp server/.env.example server/.env
 
 Open `server/.env` and set `PROVIDER` to `anthropic`, `openai`, `gemini`, or `grok`. Add a valid API key to the matching variable (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `GROK_API_KEY`). Leave the other provider keys blank. Model names can be changed with the corresponding `*_MODEL` variable; the example file lists defaults. Keep real API keys private and do not commit `server/.env`.
 
+Local development does not require OIDC; the API permits unauthenticated local requests when all `AUTH_*` settings are blank. To exercise sign-in locally, register a test OIDC client and configure matching `VITE_OIDC_*` values in `client/.env` and `AUTH_ISSUER`, `AUTH_AUDIENCE`, and `AUTH_JWKS_URL` in `server/.env`. The client authority and server issuer must match exactly. Copy `client/.env.example` as a starting point. Do not use production user accounts or real legal documents for local testing.
+
 The example configures `PORT=3001` and `NODE_ENV=development`. The frontend's Vite server runs on port 5173 and proxies `/api` requests to the backend.
 
 ### 3. Start the app
-
 From the repository root:
 
 ```sh

@@ -4,8 +4,15 @@ client/node_modules/
 server/node_modules/
 
 # Environment variables — never commit secrets
-server/.env
 .env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+client/.env
+client/.env.*
+!client/.env.example
 
 # Build output
 client/dist/

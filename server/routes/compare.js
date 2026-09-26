@@ -4,9 +4,10 @@ const multer = require('multer');
 
 const { structuredCompletion } = require('../services/claudeClient');
 const { parseFile } = require('../services/documentParser');
+const { MAX_DOCUMENT_CHARS, MAX_UPLOAD_BYTES } = require('../services/documentLimits');
 const { buildComparePrompt } = require('../prompts/compare');
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
 // POST /api/compare
 // Body: { textA?, textB?, docType? }
@@ -22,6 +23,10 @@ router.post('/', upload.fields([{ name: 'documentA', maxCount: 1 }, { name: 'doc
     }
     if (req.files?.documentB?.[0]) {
       textB = await parseFile(req.files.documentB[0].buffer, req.files.documentB[0].mimetype);
+    }
+
+    if (textA.length > MAX_DOCUMENT_CHARS || textB.length > MAX_DOCUMENT_CHARS) {
+      return res.status(413).json({ error: `Each document must be at most ${MAX_DOCUMENT_CHARS} characters.` });
     }
 
     if (!textA || textA.trim().length < 50) {

@@ -26,18 +26,18 @@ function createStorage() {
 }
 
 beforeEach(() => {
-  previousStorage = globalThis.localStorage
-  globalThis.localStorage = createStorage()
+  previousStorage = globalThis.sessionStorage
+  globalThis.sessionStorage = createStorage()
 })
 
 afterEach(() => {
-  if (previousStorage === undefined) delete globalThis.localStorage
-  else globalThis.localStorage = previousStorage
+  if (previousStorage === undefined) delete globalThis.sessionStorage
+  else globalThis.sessionStorage = previousStorage
 })
 
 test('getAnalysisHistory returns an empty list when storage is empty or invalid', () => {
   assert.deepEqual(getAnalysisHistory(), [])
-  globalThis.localStorage.setItem(STORAGE_KEY, '{invalid json')
+  globalThis.sessionStorage.setItem(STORAGE_KEY, '{invalid json')
   assert.deepEqual(getAnalysisHistory(), [])
 })
 

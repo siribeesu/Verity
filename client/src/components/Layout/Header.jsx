@@ -4,13 +4,14 @@ import {
   GitCompare,
   MessageSquareQuote,
   Scale,
-  Home
+  Home,
+  LogOut
 } from 'lucide-react'
 import Logo from './Logo'
 import DisclaimerBanner from './DisclaimerBanner'
 import './Header.css'
 
-export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
+export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, accountLabel, onSignOut }) {
   const tabs = [
     { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
     { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
@@ -37,6 +38,14 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc }) {
         </div>
 
         <div className="header-right-actions">
+          {accountLabel && (
+            <div className="account-actions">
+              <span className="account-label" title={accountLabel}>{accountLabel}</span>
+              <button type="button" className="sign-out-btn" onClick={onSignOut} title="Sign out" aria-label="Sign out">
+                <LogOut size={16} />
+              </button>
+            </div>
+          )}
           <nav className="tab-nav" role="tablist" aria-label="Main Navigation">
             {tabs.map((tab) => {
               const Icon = tab.icon

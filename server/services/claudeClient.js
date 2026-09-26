@@ -7,6 +7,11 @@
  */
 
 const PROVIDER = (process.env.PROVIDER || 'anthropic').toLowerCase();
+const SUPPORTED_PROVIDERS = new Set(['anthropic', 'openai', 'gemini', 'grok']);
+
+if (!SUPPORTED_PROVIDERS.has(PROVIDER)) {
+  throw new Error(`Unsupported LLM provider: ${PROVIDER}`);
+}
 
 // ── Anthropic ─────────────────────────────────────────────────────────────────
 async function anthropicStructured({ systemPrompt, userContent, maxTokens }) {
@@ -113,7 +118,7 @@ async function geminiStructured({ systemPrompt, userContent, maxTokens }) {
 async function geminiStream({ systemPrompt, messages, maxTokens, onDelta, onComplete }) {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   // Use SDK default (v1beta)
   const geminiModel = genAI.getGenerativeModel({
     model: modelName,

@@ -1,26 +1,33 @@
 import axios from 'axios'
+import { getAccessToken } from '../auth/authClient.js'
 
 const api = axios.create({ baseURL: '/api' })
 
+async function requestHeaders(payload) {
+  const headers = payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {}
+  const accessToken = await getAccessToken()
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`
+  return headers
+}
+
 /** POST /api/analyze — text or FormData with file */
 export async function analyzeDocument(payload) {
-  const { data } = await api.post('/analyze', payload, {
-    headers: payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
-  })
+  const headers = await requestHeaders(payload)
+  const { data } = await api.post('/analyze', payload, { headers })
   return data
 }
 
 /** POST /api/compare — text or FormData */
 export async function compareDocuments(payload) {
-  const { data } = await api.post('/compare', payload, {
-    headers: payload instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
-  })
+  const headers = await requestHeaders(payload)
+  const { data } = await api.post('/compare', payload, { headers })
   return data
 }
 
 /** POST /api/lawyer-prep */
 export async function lawyerPrep(analyzeResult) {
-  const { data } = await api.post('/lawyer-prep', { analyzeResult })
+  const headers = await requestHeaders({})
+  const { data } = await api.post('/lawyer-prep', { analyzeResult }, { headers })
   return data
 }
 
@@ -30,9 +37,13 @@ export async function lawyerPrep(analyzeResult) {
  */
 export async function askQuestion({ text, messages, question, onDelta, onComplete, onError }) {
   try {
+    const accessToken = await getAccessToken()
     const response = await fetch('/api/ask', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify({ text, messages, question }),
     })
 
