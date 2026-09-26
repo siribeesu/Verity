@@ -12,11 +12,10 @@ import {
   Quote,
   ChevronRight
 } from 'lucide-react'
-import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import Logo from '../Layout/Logo'
 import './LandingPage.css'
 
-export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
+export default function LandingPage({ onLaunchApp }) {
   return (
     <div className="landing-page">
       {/* Hero Section */}
@@ -43,13 +42,6 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
           >
             <span>Launch LegalAssist</span>
             <ArrowRight size={18} />
-          </button>
-          <button
-            className="btn btn-secondary btn-hero-secondary"
-            onClick={() => onLaunchWithSample?.(SAMPLE_DOCUMENTS[0])}
-          >
-            <Sparkles size={16} />
-            <span>Try Sample Lease Agreement</span>
           </button>
         </div>
 
@@ -190,37 +182,6 @@ export default function LandingPage({ onLaunchApp, onLaunchWithSample }) {
             <div className="step-num">3</div>
             <h4>Take Confident Action</h4>
             <p>Ask in-depth questions, compare revised counter-offers, or print a structured agenda for your lawyer.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Quick Start Contract Presets */}
-      <section className="landing-presets">
-        <div className="presets-banner card">
-          <div className="presets-banner-text">
-            <h3>Test with realistic sample documents</h3>
-            <p>Experience how LegalAssist analyzes different contract categories with one click:</p>
-          </div>
-
-          <div className="presets-cards-row">
-            {SAMPLE_DOCUMENTS.map((sample) => (
-              <div
-                key={sample.id}
-                className="preset-sample-card"
-                onClick={() => onLaunchWithSample?.(sample)}
-              >
-                <div className="sample-card-top">
-                  <span className="category-badge">{sample.category}</span>
-                  <Sparkles size={14} className="sparkle-icon" />
-                </div>
-                <h4>{sample.title}</h4>
-                <p>{sample.description}</p>
-                <button type="button" className="btn btn-secondary btn-sm sample-launch-btn">
-                  <span>Analyze this sample</span>
-                  <ArrowRight size={13} />
-                </button>
-              </div>
-            ))}
           </div>
         </div>
       </section>

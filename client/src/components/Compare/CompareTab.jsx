@@ -3,8 +3,7 @@ import DocumentInput from '../DocumentInput/DocumentInput'
 import DiffCard from './DiffCard'
 import VisualRedline from './VisualRedline'
 import { useCompare } from '../../hooks/useCompare'
-import { SAMPLE_COMPARISON_PAIRS } from '../../data/sampleDocuments'
-import { GitCompare, ArrowLeftRight, Sparkles, Sliders, CheckCircle2 } from 'lucide-react'
+import { GitCompare, ArrowLeftRight, Sliders, CheckCircle2 } from 'lucide-react'
 import './CompareTab.css'
 
 const DOC_TYPES = [
@@ -41,42 +40,16 @@ export default function CompareTab() {
     setFileB(tempFile)
   }
 
-  function handleSelectPreset(preset) {
-    setTextA(preset.docA)
-    setTextB(preset.docB)
-    setDocType(preset.docType || 'general')
-    setFileA(null)
-    setFileB(null)
-  }
-
   const canRun = (textA.trim() || fileA) && (textB.trim() || fileB)
 
   return (
     <div className="compare-tab">
       <div className="compare-container">
-        {/* Preset Selector Banner */}
-        <div className="compare-presets-card card">
-          <div className="presets-left">
-            <Sparkles size={16} className="sparkle-icon" />
+        <div className="compare-intro-card card">
+          <div className="compare-intro">
             <div>
               <h3>Compare Two Versions of a Document</h3>
               <p>Detect substantive risk shifts, revised terms, or new obligations.</p>
-            </div>
-          </div>
-
-          <div className="presets-right">
-            <span className="preset-label">Try a comparison:</span>
-            <div className="preset-buttons">
-              {SAMPLE_COMPARISON_PAIRS.map((pair) => (
-                <button
-                  key={pair.id}
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => handleSelectPreset(pair)}
-                >
-                  <span>{pair.title}</span>
-                </button>
-              ))}
             </div>
           </div>
         </div>
