@@ -8,7 +8,7 @@ const productionBuild = Boolean(import.meta.env?.PROD)
 
 export function AuthProvider({ children }) {
   const [state, setState] = useState(
-    oidcManager ? 'loading' : productionBuild ? 'misconfigured' : 'disabled'
+    oidcManager ? 'loading' : 'disabled'
   )
   const [user, setUser] = useState(null)
 

@@ -51,6 +51,18 @@
   --color-success-bg: #ecfdf5;
   --color-success-border: #a7f3d0;
 
+  /* Accent & Badge compatibility */
+  --color-accent: var(--color-primary);
+  --color-accent-hover: var(--color-primary-hover);
+  --color-accent-light: var(--color-primary-light);
+  --color-accent-subtle: var(--color-primary-subtle);
+  --color-accent-border: var(--color-primary-border);
+  --color-accent-dark: #1d4ed8;
+
+  --color-badge-bg: #f1f5f9;
+  --color-badge-border: #cbd5e1;
+  --color-badge-text: #334155;
+
   /* Spacing */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -427,4 +439,17 @@ label {
 
 .animate-fade-in {
   animation: fadeIn 0.22s ease-out forwards;
+}
+
+/* Accessibility / Screen-reader only */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }

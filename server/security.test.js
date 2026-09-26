@@ -174,6 +174,7 @@ test('production startup fails when OIDC verification settings are missing', () 
       PROVIDER: 'anthropic',
       ANTHROPIC_API_KEY: 'test-key',
       REDIS_URL: 'redis://localhost:6379',
+      REQUIRE_AUTH: 'true',
       AUTH_ISSUER: '',
       AUTH_AUDIENCE: '',
       AUTH_JWKS_URL: '',
