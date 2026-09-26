@@ -33,15 +33,20 @@ The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also pro
 
 - The server only returns CORS permission for origins listed in `CORS_ORIGINS`, a comma-separated list of exact origins such as `https://app.example.com`. Leave it blank for the same-origin Vercel deployment or the local Vite proxy. Set it when a separately hosted browser frontend needs to call the API.
 - CORS is a browser policy, not authentication. The API endpoints do not require a user login, so they can still be called directly by scripts or other servers. Use an authentication layer or API gateway before exposing a private deployment.
+- The API does not yet provide user accounts or per-user authorization. Before public production use, integrate a hosted identity provider or trusted authentication gateway; do not put a shared secret in the browser bundle.
 
 ### Rate Limits and Uploads
 
 - The API currently allows up to 200 requests per client IP per 15-minute window. JSON request bodies are limited to 10 MB, and PDF, DOCX, and TXT uploads are limited to 20 MB.
-- The rate limiter uses its default in-memory store. Its counts are not shared across server instances and can reset on restart, so it is not a reliable distributed quota for a scaled or serverless deployment. Configure a shared rate-limit store or an upstream API gateway, and set provider spending limits before public launch.
+- Local development uses an in-memory rate-limit store. Production startup requires `REDIS_URL` and uses Redis to share rate limits across server instances. Configure Redis availability/monitoring and provider spending limits before public launch.
+- `TRUST_PROXY` controls Express proxy trust for client IP detection. The server defaults to one trusted proxy hop on Vercel; set it to the correct hop count for other hosting platforms. Do not trust forwarded IP headers from direct, untrusted traffic.
+- Helmet sets common HTTP security headers. Production startup also fails when the selected provider API key or `REDIS_URL` is missing; configure `API_RATE_LIMIT_WINDOW_MS` and `API_RATE_LIMIT_MAX` to tune the default 15-minute/200-request limit.
 
 ## Deployment Checklist
 
 - Add `PROVIDER` and the matching provider API key as server-side environment variables for each deployment environment. Add model overrides only when needed.
+- Provision Redis and configure `REDIS_URL`; production intentionally refuses to start without the shared rate-limit store. Configure `TRUST_PROXY` for the hosting topology.
+- Integrate user authentication and authorization through a hosted identity provider or trusted gateway before exposing the app publicly. Verify access control on every API route.
 - Confirm `CORS_ORIGINS` contains only the exact frontend origins when frontend and API are hosted separately. Do not treat CORS as a substitute for authentication.
 - Configure a shared rate-limit store or gateway for multi-instance/serverless production, and review request quotas and provider spending limits.
 - Run `npm test` and `npm run build` before deployment.
@@ -52,7 +57,7 @@ The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also pro
 
 ### Prerequisites
 
-- Node.js 18 or newer and npm.
+- Node.js 20 or newer and npm.
 - An API key for one supported LLM provider: Anthropic, OpenAI, Google Gemini, or xAI Grok.
 
 ### 1. Install dependencies

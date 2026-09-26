@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const multer = require('multer');
-const path = require('path');
 const rateLimit = require('express-rate-limit');
+const { RedisStore } = require('rate-limit-redis');
+const Redis = require('ioredis');
 
 const { getActiveProvider } = require('./services/claudeClient');
 const analyzeRoute = require('./routes/analyze');
@@ -13,6 +15,36 @@ const lawyerPrepRoute = require('./routes/lawyerPrep');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const providerKeyNames = {
+  anthropic: 'ANTHROPIC_API_KEY',
+  openai: 'OPENAI_API_KEY',
+  gemini: 'GEMINI_API_KEY',
+  grok: 'GROK_API_KEY',
+};
+const activeProvider = getActiveProvider();
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  if (!process.env[providerKeyNames[activeProvider]]) {
+    throw new Error(`${providerKeyNames[activeProvider]} must be configured in production.`);
+  }
+  if (!process.env.REDIS_URL) {
+    throw new Error('REDIS_URL must be configured in production for shared rate limiting.');
+  }
+}
+
+const trustProxySetting = process.env.TRUST_PROXY;
+const trustProxyCount = Number(trustProxySetting);
+const trustedProxy = trustProxySetting === undefined
+  ? (process.env.VERCEL ? 1 : false)
+  : trustProxySetting === 'true'
+    ? true
+    : trustProxySetting === 'false'
+      ? false
+      : Number.isInteger(trustProxyCount) && trustProxyCount >= 0
+        ? trustProxyCount
+        : trustProxySetting;
+app.set('trust proxy', trustedProxy);
 
 const allowedOrigins = new Set(
   (process.env.CORS_ORIGINS || '')
@@ -21,6 +53,7 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
+app.use(helmet());
 app.use(cors({
   origin(origin, callback) {
     callback(null, !origin || allowedOrigins.has(origin));
@@ -29,10 +62,34 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Rate limiter for API protection
+const rateLimitWindowMs = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
+const rateLimitMax = Number(process.env.API_RATE_LIMIT_MAX || 200);
+
+if (!Number.isSafeInteger(rateLimitWindowMs) || rateLimitWindowMs < 1000) {
+  throw new Error('API_RATE_LIMIT_WINDOW_MS must be an integer of at least 1000.');
+}
+if (!Number.isSafeInteger(rateLimitMax) || rateLimitMax < 1) {
+  throw new Error('API_RATE_LIMIT_MAX must be a positive integer.');
+}
+
+let rateLimitStore;
+if (process.env.REDIS_URL) {
+  const redisClient = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+  });
+  redisClient.on('error', (error) => {
+    console.error('[Rate Limit Redis Error]', error.message);
+  });
+  rateLimitStore = new RedisStore({
+    sendCommand: (command, ...args) => redisClient.call(command, ...args),
+  });
+}
+
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 200 requests per 15 minutes
+  windowMs: rateLimitWindowMs,
+  limit: rateLimitMax,
+  ...(rateLimitStore ? { store: rateLimitStore } : {}),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests from this IP, please try again after 15 minutes.' }
@@ -69,8 +126,11 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'legalas
 
 // Global error handler
 app.use((err, _req, res, _next) => {
-  console.error('[LegalAssist Server Error]', err);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  const status = err.statusCode || err.status || 500;
+  console.error('[LegalAssist Server Error]', err.message || 'Unknown error');
+  res.status(status).json({
+    error: status >= 500 ? 'Internal server error' : err.message,
+  });
 });
 
 // Export app for serverless deployment on Vercel

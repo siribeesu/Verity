@@ -19,7 +19,7 @@
     "@testing-library/react": "^16.3.3",
     "@vitejs/plugin-react": "^4.3.1",
     "jsdom": "^25.0.1",
-    "vite": "^5.4.6",
-    "vitest": "^2.1.9"
+    "vite": "^6.4.3",
+    "vitest": "^4.1.11"
   }
 }
