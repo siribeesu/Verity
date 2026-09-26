@@ -102,48 +102,84 @@ async function openaiStream({ systemPrompt, messages, maxTokens, onDelta, onComp
 async function geminiStructured({ systemPrompt, userContent, maxTokens }) {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  // Use SDK default (v1beta) — gemini-1.5-flash is only on v1beta
-  const model = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-    generationConfig: { maxOutputTokens: maxTokens },
-  });
+  const preferredModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+  const candidateModels = [preferredModel, 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.7-flash']
+    .filter((m, i, arr) => arr.indexOf(m) === i);
 
-  const result = await model.generateContent(userContent);
-  return extractJSON(result.response.text());
+  let lastError;
+  for (const modelName of candidateModels) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemPrompt,
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          responseMimeType: 'application/json',
+        },
+      });
+
+      const result = await model.generateContent(userContent);
+      return extractJSON(result.response.text());
+    } catch (err) {
+      lastError = err;
+      const isTemporary = err.status === 503 || err.status === 404 || err.status === 429 ||
+        err.message?.includes('503') || err.message?.includes('404') || err.message?.includes('high demand');
+      if (isTemporary) {
+        console.warn(`[Gemini] Model ${modelName} returned temporary status (${err.status || 503}), trying next model candidate...`);
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
 }
 
 
 async function geminiStream({ systemPrompt, messages, maxTokens, onDelta, onComplete }) {
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-  // Use SDK default (v1beta)
-  const geminiModel = genAI.getGenerativeModel({
-    model: modelName,
-    systemInstruction: systemPrompt,
-    generationConfig: { maxOutputTokens: maxTokens },
-  });
+  const preferredModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+  const candidateModels = [preferredModel, 'gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.7-flash']
+    .filter((m, i, arr) => arr.indexOf(m) === i);
 
-  // Convert messages to Gemini format
-  const history = messages.slice(0, -1).map((m) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
-  const lastMsg = messages[messages.length - 1];
+  let lastError;
+  for (const modelName of candidateModels) {
+    try {
+      const geminiModel = genAI.getGenerativeModel({
+        model: modelName,
+        systemInstruction: systemPrompt,
+        generationConfig: { maxOutputTokens: maxTokens },
+      });
 
-  const chat = geminiModel.startChat({ history });
-  const streamResult = await chat.sendMessageStream(lastMsg.content);
+      const history = messages.slice(0, -1).map((m) => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }],
+      }));
+      const lastMsg = messages[messages.length - 1];
 
-  let fullText = '';
-  for await (const chunk of streamResult.stream) {
-    const delta = chunk.text();
-    fullText += delta;
-    if (onDelta) onDelta(delta);
+      const chat = geminiModel.startChat({ history });
+      const streamResult = await chat.sendMessageStream(lastMsg.content);
+
+      let fullText = '';
+      for await (const chunk of streamResult.stream) {
+        const delta = chunk.text();
+        fullText += delta;
+        if (onDelta) onDelta(delta);
+      }
+      if (onComplete) onComplete(fullText);
+      return fullText;
+    } catch (err) {
+      lastError = err;
+      const isTemporary = err.status === 503 || err.status === 404 || err.status === 429 ||
+        err.message?.includes('503') || err.message?.includes('404') || err.message?.includes('high demand');
+      if (isTemporary) {
+        console.warn(`[Gemini Stream] Model ${modelName} returned temporary status (${err.status || 503}), trying next model candidate...`);
+        continue;
+      }
+      throw err;
+    }
   }
-  if (onComplete) onComplete(fullText);
-  return fullText;
+  throw lastError;
 }
 
 
@@ -202,16 +238,27 @@ async function grokStream({ systemPrompt, messages, maxTokens, onDelta, onComple
 function extractJSON(text) {
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   const jsonStr = fenced ? fenced[1].trim() : text.trim();
+
+  // 1. Try direct parse
   try {
     return JSON.parse(jsonStr);
-  } catch {
-    // Try to find a JSON object anywhere in the response
-    const objMatch = jsonStr.match(/\{[\s\S]*\}/);
-    if (objMatch) {
-      try { return JSON.parse(objMatch[0]); } catch {}
-    }
-    throw new Error(`LLM returned non-JSON response: ${text.slice(0, 300)}`);
+  } catch {}
+
+  // 2. Remove trailing commas before closing braces/brackets
+  const cleaned = jsonStr.replace(/,\s*([\]}])/g, '$1').trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {}
+
+  // 3. Find JSON object or array anywhere in text
+  const match = cleaned.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+  if (match) {
+    try {
+      return JSON.parse(match[0].replace(/,\s*([\]}])/g, '$1'));
+    } catch {}
   }
+
+  throw new Error(`LLM returned non-JSON response: ${text.slice(0, 300)}`);
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
