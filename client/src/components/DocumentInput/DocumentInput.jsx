@@ -195,6 +195,9 @@ export default function DocumentInput({
             accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
             onChange={handleFile}
             className="sr-only"
+            style={{ display: 'none' }}
+            tabIndex={-1}
+            aria-hidden="true"
             id={`${id}-file`}
           />
           {fileName ? (
@@ -228,7 +231,7 @@ export default function DocumentInput({
                 <span className="upload-badge">PDF</span>
                 <span className="upload-badge">DOCX</span>
                 <span className="upload-badge">TXT</span>
-                <span className="upload-meta-note">Up to 20 MB</span>
+                <span className="upload-meta-note">Up to 10 MB</span>
               </div>
             </div>
           )}
