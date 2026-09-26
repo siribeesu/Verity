@@ -342,7 +342,18 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
               <DeadlinesFinancials docText={text} clauses={clauses} />
 
               {/* Rights & Scenario Navigator */}
-              <ScenarioNavigator docType={docType} />
+              <ScenarioNavigator
+                docType={docType}
+                onAskScenario={(scenario) => {
+                  onAskAboutClause?.(
+                    {
+                      title: scenario.title,
+                      original_excerpt: `How does my document handle this scenario: ${scenario.question}`,
+                    },
+                    text
+                  )
+                }}
+              />
 
               {/* Risk metrics summary row */}
               <div className="risk-dashboard card">
