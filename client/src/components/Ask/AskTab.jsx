@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import DocumentInput from '../DocumentInput/DocumentInput'
 import ChatMessage from './ChatMessage'
 import { useAsk } from '../../hooks/useAsk'
-import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import {
   MessageSquareQuote,
   Send,
@@ -77,13 +76,6 @@ export default function AskTab({ preloadedText, initialQuestion }) {
     }
   }
 
-  function handleSelectSample(sample) {
-    setDocText(sample.text)
-    setResolvedText(sample.text)
-    setDocLoaded(true)
-    clearMessages()
-  }
-
   function handleSend() {
     if (!question.trim() || streaming || !resolvedText) return
     ask(question)
@@ -147,8 +139,6 @@ export default function AskTab({ preloadedText, initialQuestion }) {
                 onChange={setDocText}
                 onFileChange={setDocFile}
                 placeholder="Paste the document text to enable grounded Q&A with citations..."
-                samples={SAMPLE_DOCUMENTS}
-                onSelectSample={handleSelectSample}
               />
               <button
                 className="btn btn-primary btn-load-doc"

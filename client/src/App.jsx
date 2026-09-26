@@ -33,11 +33,6 @@ export default function App() {
     setActiveTab('ask')
   }
 
-  function handleLaunchWithSample(sample) {
-    setAnalyzedDocText(sample.text)
-    setActiveTab('analyze')
-  }
-
   return (
     <div className="app">
       <Header
@@ -50,7 +45,6 @@ export default function App() {
         {activeTab === 'landing' && (
           <LandingPage
             onLaunchApp={setActiveTab}
-            onLaunchWithSample={handleLaunchWithSample}
           />
         )}
         {activeTab === 'analyze' && (
@@ -70,7 +64,6 @@ export default function App() {
         {activeTab === 'lawyer-prep' && (
           <LawyerPrepTab
             analyzeResult={analyzeResult}
-            onRunSampleAnalyze={handleLaunchWithSample}
           />
         )}
       </main>

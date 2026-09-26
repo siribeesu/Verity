@@ -178,21 +178,6 @@
 }
 
 /* Empty & Loading states */
-.empty-sample-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  width: 100%;
-  max-width: 320px;
-}
-
-.empty-sample-btn {
-  width: 100%;
-  justify-content: flex-start;
-  text-align: left;
-}
-
 .loading-state {
   gap: 0.75rem;
 }

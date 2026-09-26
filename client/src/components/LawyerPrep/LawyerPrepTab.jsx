@@ -5,7 +5,6 @@ import {
   Copy,
   Printer,
   RefreshCw,
-  Sparkles,
   HelpCircle,
   FileText,
   Check,
@@ -13,10 +12,9 @@ import {
   ExternalLink,
   ShieldCheck
 } from 'lucide-react'
-import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import './LawyerPrepTab.css'
 
-export default function LawyerPrepTab({ analyzeResult, onRunSampleAnalyze }) {
+export default function LawyerPrepTab({ analyzeResult }) {
   const { result, loading, error, run } = useLawyerPrep()
   const [copied, setCopied] = useState(false)
   const [notes, setNotes] = useState({})
@@ -88,18 +86,8 @@ export default function LawyerPrepTab({ analyzeResult, onRunSampleAnalyze }) {
             </div>
             <h3>No Document Analysis Found</h3>
             <p>
-              Run an analysis on a document in the <strong>Analyze tab</strong> first, or load a sample contract to generate an instant consultation agenda.
+              Run an analysis on a document in the <strong>Analyze tab</strong> first to generate a consultation agenda.
             </p>
-            {onRunSampleAnalyze && (
-              <button
-                className="btn btn-primary"
-                onClick={() => onRunSampleAnalyze(SAMPLE_DOCUMENTS[0])}
-                style={{ marginTop: '1rem' }}
-              >
-                <Sparkles size={14} />
-                <span>Analyze Sample Lease & Generate Agenda</span>
-              </button>
-            )}
           </div>
         )}
 

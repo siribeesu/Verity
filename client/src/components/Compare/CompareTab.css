@@ -13,10 +13,9 @@
   gap: 1.25rem;
 }
 
-.compare-presets-card {
+.compare-intro-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1.5rem;
   padding: 1rem 1.25rem;
   background: var(--color-surface);
@@ -24,43 +23,23 @@
   flex-wrap: wrap;
 }
 
-.presets-left {
+.compare-intro {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.presets-left h3 {
+.compare-intro h3 {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-secondary);
   margin: 0;
 }
 
-.presets-left p {
+.compare-intro p {
   font-size: 0.8rem;
   color: var(--color-text-muted);
   margin: 0;
-}
-
-.presets-right {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
-}
-
-.preset-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-}
-
-.preset-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
 }
 
 .compare-inputs-grid {

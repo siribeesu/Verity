@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { FileText, UploadCloud, File, Trash2, Clipboard, Sparkles, Check, ShieldCheck } from 'lucide-react'
+import { FileText, UploadCloud, File, Trash2, Clipboard, Check, ShieldCheck } from 'lucide-react'
 import { sanitizePII } from '../../utils/piiSanitizer'
 import './DocumentInput.css'
 
@@ -10,8 +10,6 @@ export default function DocumentInput({
   onFileChange,
   placeholder = 'Paste your legal document text here...',
   id = 'document',
-  samples = null,
-  onSelectSample = null,
 }) {
   const [mode, setMode] = useState('paste') // 'paste' | 'upload'
   const [fileName, setFileName] = useState(null)
@@ -98,35 +96,6 @@ export default function DocumentInput({
         </label>
 
         <div className="input-header-actions">
-          {samples && samples.length > 0 && onSelectSample && (
-            <div className="sample-select-wrap">
-              <Sparkles size={13} className="sparkle-icon" />
-              <select
-                className="sample-dropdown"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    const sample = samples.find((s) => s.id === e.target.value)
-                    if (sample) {
-                      onSelectSample(sample)
-                      setMode('paste')
-                      clearFile()
-                    }
-                    e.target.value = ''
-                  }
-                }}
-                defaultValue=""
-                aria-label="Load a sample document"
-              >
-                <option value="" disabled>Try a sample document...</option>
-                {samples.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
           <div className="mode-toggle">
             <button
               className={`mode-btn ${mode === 'paste' ? 'active' : ''}`}

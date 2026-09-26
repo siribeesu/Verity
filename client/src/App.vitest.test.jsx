@@ -14,8 +14,8 @@ vi.mock('./components/Layout/Header', () => ({
 }))
 
 vi.mock('./components/Landing/LandingPage', () => ({
-  default: ({ onLaunchWithSample }) => (
-    <button onClick={() => onLaunchWithSample({ text: 'Sample agreement text' })}>Load sample</button>
+  default: ({ onLaunchApp }) => (
+    <button onClick={() => onLaunchApp('analyze')}>Launch Analyze</button>
   ),
 }))
 
@@ -45,7 +45,7 @@ vi.mock('./components/LawyerPrep/LawyerPrepTab', () => ({
 test('App navigates between tabs and passes shared analysis and clause context', () => {
   render(<App />)
 
-  fireEvent.click(screen.getByRole('button', { name: 'Load sample' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Launch Analyze' }))
   expect(screen.getByTestId('active-tab').textContent).toBe('analyze')
 
   fireEvent.click(screen.getByRole('button', { name: 'Complete analysis' }))

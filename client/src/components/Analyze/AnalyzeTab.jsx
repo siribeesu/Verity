@@ -8,7 +8,6 @@ import FairnessMeter from './FairnessMeter'
 import DeadlinesFinancials from './DeadlinesFinancials'
 import ScenarioNavigator from './ScenarioNavigator'
 import { useAnalyze } from '../../hooks/useAnalyze'
-import { SAMPLE_DOCUMENTS } from '../../data/sampleDocuments'
 import {
   saveAnalysisToHistory,
   getAnalysisHistory,
@@ -77,14 +76,6 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
   function handleRun() {
     if (!text.trim() && !file) return
     run({ text, file, readingLevel, docType, jurisdiction: jurisdiction || null })
-  }
-
-  function handleSelectSample(sample) {
-    setText(sample.text)
-    setDocType(sample.docType || 'general')
-    if (sample.jurisdiction) {
-      setJurisdiction(sample.jurisdiction)
-    }
   }
 
   // Notify parent of new result and auto-save to history
@@ -191,8 +182,6 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             onChange={setText}
             onFileChange={setFile}
             placeholder="Paste your lease, NDA, employment agreement, service contract, or terms here..."
-            samples={SAMPLE_DOCUMENTS}
-            onSelectSample={handleSelectSample}
           />
 
           <div className="controls-card card">
@@ -309,20 +298,8 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
               </div>
               <h3>Ready to analyze your document</h3>
               <p>
-                Paste your legal text or select a <strong>sample document</strong> from the dropdown to see instant plain-English explanations and risk flags.
+                Paste or upload your legal document to see plain-English explanations and risk flags.
               </p>
-              <div className="empty-sample-buttons">
-                {SAMPLE_DOCUMENTS.map((sample) => (
-                  <button
-                    key={sample.id}
-                    className="btn btn-secondary btn-sm empty-sample-btn"
-                    onClick={() => handleSelectSample(sample)}
-                  >
-                    <Sparkles size={12} />
-                    <span>Try {sample.title}</span>
-                  </button>
-                ))}
-              </div>
             </div>
           )}
 
