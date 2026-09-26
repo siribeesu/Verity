@@ -2,35 +2,118 @@
 
 LegalAssist is a GenAI-powered web app that helps everyday people understand, compare, and navigate legal documents — without replacing a lawyer.
 
-## Quick Start
+## What the Project Does
+
+LegalAssist accepts legal text or a supported document file and uses a selected AI provider to make the content easier to review. It is organized around four tools:
+
+- **Analyze**: produces a plain-language summary, clause explanations, risk levels, key-term definitions, and suggested action items. Where possible, clause explanations include a quotation from the source document.
+- **Compare**: compares two document versions and describes material changes to terms, obligations, or risks.
+- **Ask**: answers questions about a loaded document, streams the response, and presents a relevant source excerpt when available.
+- **Lawyer Prep**: turns flagged clauses and key terms from an analysis into focused questions to discuss with an attorney.
+
+The app accepts pasted text and PDF, DOCX, or TXT files up to 20 MB. It also provides optional PII masking for pasted text before submission. The backend can use Anthropic, OpenAI, Google Gemini, or xAI Grok; configure one provider and its API key in `server/.env`.
+
+## Important Cautions
+
+- **Not legal advice**: LegalAssist is an informational tool, not a law firm or a substitute for advice from a licensed attorney. It does not determine whether a document or clause is legally valid in your jurisdiction.
+- **AI can be wrong**: summaries, risk labels, and answers may be incomplete or inaccurate. Check quotations against the original document and have important terms reviewed by a qualified lawyer.
+- **Your text is sent to an AI provider**: document content is sent to the provider configured by the application to generate results. Review that provider's privacy policy and terms before submitting confidential or sensitive documents.
+- **Browser history**: analyses of pasted text are saved in browser local storage on the device for the in-app history feature. Clear that history in the app or clear the browser's site data to remove it. Uploaded files are processed in server memory and are not written to server disk.
+- **PII masking is optional**: the mask control applies to pasted text only; uploaded files are not automatically redacted. Review and redact sensitive details before submitting files when appropriate.
+
+## Basic Security Review
+
+### Secrets
+
+- `server/.env` is ignored by Git; `server/.env.example` contains placeholders. Keep provider keys in the server environment or deployment secret settings, never in client code or committed files.
+- If a key is accidentally exposed, revoke it with the provider and replace it. Removing it from a file or commit does not invalidate the exposed key.
+- The configured provider receives document text to generate results. Apply the provider's data-handling terms to any documents you submit.
+
+### CORS and API Access
+
+- The server only returns CORS permission for origins listed in `CORS_ORIGINS`, a comma-separated list of exact origins such as `https://app.example.com`. Leave it blank for the same-origin Vercel deployment or the local Vite proxy. Set it when a separately hosted browser frontend needs to call the API.
+- CORS is a browser policy, not authentication. The API endpoints do not require a user login, so they can still be called directly by scripts or other servers. Use an authentication layer or API gateway before exposing a private deployment.
+
+### Rate Limits and Uploads
+
+- The API currently allows up to 200 requests per client IP per 15-minute window. JSON request bodies are limited to 10 MB, and PDF, DOCX, and TXT uploads are limited to 20 MB.
+- The rate limiter uses its default in-memory store. Its counts are not shared across server instances and can reset on restart, so it is not a reliable distributed quota for a scaled or serverless deployment. Configure a shared rate-limit store or an upstream API gateway, and set provider spending limits before public launch.
+
+## Deployment Checklist
+
+- Add `PROVIDER` and the matching provider API key as server-side environment variables for each deployment environment. Add model overrides only when needed.
+- Confirm `CORS_ORIGINS` contains only the exact frontend origins when frontend and API are hosted separately. Do not treat CORS as a substitute for authentication.
+- Configure a shared rate-limit store or gateway for multi-instance/serverless production, and review request quotas and provider spending limits.
+- Run `npm test` and `npm run build` before deployment.
+- Deploy using the repository's Vercel configuration, then check `/api/health` and smoke-test analysis, comparison, document Q&A, and lawyer-prep flows with non-sensitive documents.
+- Confirm production secrets are configured in the hosting dashboard and are not present in client bundles, logs, or committed files.
+
+## Setup and Run
+
+### Prerequisites
+
+- Node.js 18 or newer and npm.
+- An API key for one supported LLM provider: Anthropic, OpenAI, Google Gemini, or xAI Grok.
 
 ### 1. Install dependencies
 
-```bash
+From the repository root, run:
+
+```sh
 npm run install:all
 ```
 
-### 2. Configure your API key
+### 2. Create the server environment file
 
-```bash
+PowerShell:
+
+```powershell
+Copy-Item server/.env.example server/.env
+```
+
+macOS/Linux:
+
+```sh
 cp server/.env.example server/.env
 ```
 
-Edit `server/.env` and add your API key:
+Open `server/.env` and set `PROVIDER` to `anthropic`, `openai`, `gemini`, or `grok`. Add a valid API key to the matching variable (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, or `GROK_API_KEY`). Leave the other provider keys blank. Model names can be changed with the corresponding `*_MODEL` variable; the example file lists defaults. Keep real API keys private and do not commit `server/.env`.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
-PORT=3001
-```
+The example configures `PORT=3001` and `NODE_ENV=development`. The frontend's Vite server runs on port 5173 and proxies `/api` requests to the backend.
 
-### 3. Run the development server
+### 3. Start the app
 
-```bash
+From the repository root:
+
+```sh
 npm run dev
 ```
 
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3001
+Open the frontend at <http://localhost:5173>. The API server runs at <http://localhost:3001>; its health endpoint is <http://localhost:3001/api/health>.
+
+To run services separately, use two terminals from the repository root:
+
+```sh
+npm run dev:server
+```
+
+```sh
+npm run dev:client
+```
+
+### Tests and production build
+
+Run all server and client tests:
+
+```sh
+npm test
+```
+
+Build the frontend for production:
+
+```sh
+npm run build
+```
 
 ---
 
@@ -54,7 +137,7 @@ legalassist/
 └── server/          # Node.js + Express backend
     ├── routes/      # analyze, compare, ask (SSE), lawyer-prep
     ├── services/
-    │   ├── claudeClient.js   # Anthropic SDK wrapper
+    │   ├── claudeClient.js   # Multi-provider LLM client
     │   ├── documentParser.js # pdf-parse + mammoth
     │   └── chunker.js        # Section chunking + keyword retrieval
     └── prompts/     # System prompt factories per feature
