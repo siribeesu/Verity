@@ -134,9 +134,9 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
                 § {clause.section_ref}
               </span>
             )}
-            {clause.confidence_score !== undefined && (
-              <span className="confidence-badge" title="Model grounding confidence">
-                {Math.round(clause.confidence_score * 100)}% Confidence
+            {clause.original_excerpt && (
+              <span className="grounding-badge" title="Extracted verbatim from document text">
+                <Check size={11} /> Grounded
               </span>
             )}
           </div>
@@ -183,7 +183,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
         <div className="explanation-box">
           <div className="explanation-header">
             <Sparkles size={13} className="sparkle-ai-icon" />
-            <span className="box-section-label">Plain-English Meaning</span>
+            <span className="box-section-label">What This Means for You</span>
           </div>
           <p className="clause-explanation">{clause.explanation}</p>
         </div>
@@ -192,11 +192,23 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
           <div className={`risk-reason-box risk-${riskLevel}`}>
             <div className="risk-reason-header">
               <RiskIcon size={13} className="risk-reason-icon" />
-              <span className="box-section-label">Why It Was Flagged</span>
+              <span className="box-section-label">Why This Matters (Risk Factor)</span>
             </div>
             <p className="clause-risk-reason">{clause.risk_reason}</p>
           </div>
         )}
+
+        {/* Recommended Next Step */}
+        <div className={`clause-recommendation-bar rec-${riskLevel}`}>
+          <span className="rec-badge">Recommended Next Step:</span>
+          <span className="rec-text">
+            {riskLevel === 'high'
+              ? '🚩 Consult an attorney or request our fair replacement clause before signing.'
+              : riskLevel === 'medium'
+              ? '⚠️ Request explicit mutual terms or unambiguous calendar day limits.'
+              : '✓ Standard commercial language; acceptable under typical industry norms.'}
+          </span>
+        </div>
 
         {/* Counter-proposal suggestion toggle */}
         {counterProposal && (

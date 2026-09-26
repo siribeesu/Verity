@@ -418,6 +418,78 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
 
           {result && !loading && (
             <div className="results-content animate-fade-in">
+              {/* Feature Disclaimer Banner */}
+              <div className="tab-legal-disclaimer card">
+                <Scale size={14} className="disclaimer-icon" />
+                <span>
+                  <strong>Informational Notice:</strong> LegalAssist highlights potential risks and extracts clauses for preparation and negotiation. This analysis does not constitute formal legal advice.
+                </span>
+              </div>
+
+              {/* Executive Risk Scorecard & Next Steps */}
+              <div className="executive-risk-scorecard card">
+                <div className="scorecard-top">
+                  <div className="scorecard-status">
+                    <span className="scorecard-label">Contract Risk Profile:</span>
+                    <span className={`risk-profile-badge ${highRiskCount > 0 ? 'high' : mediumRiskCount > 0 ? 'medium' : 'low'}`}>
+                      {highRiskCount > 0
+                        ? `🔴 Elevated Risk (${highRiskCount} High-Risk Flag${highRiskCount > 1 ? 's' : ''})`
+                        : mediumRiskCount > 0
+                        ? `🟡 Moderate Exposure (${mediumRiskCount} Flag${mediumRiskCount > 1 ? 's' : ''})`
+                        : `🟢 Low Risk / Standard Terms`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm prep-action-btn"
+                    onClick={onGoToLawyerPrep}
+                    title="Open Attorney Preparation Agenda"
+                    aria-label="Open Attorney Preparation Agenda"
+                  >
+                    <Scale size={13} />
+                    <span>Attorney Prep Questions</span>
+                  </button>
+                </div>
+                <div className="scorecard-counts-row">
+                  <button
+                    type="button"
+                    className={`count-chip high ${filterRisk === 'high' ? 'active' : ''}`}
+                    onClick={() => setFilterRisk('high')}
+                    title="Filter high risk clauses"
+                  >
+                    <span className="c-num">{highRiskCount}</span>
+                    <span className="c-text">High Risk</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`count-chip medium ${filterRisk === 'medium' ? 'active' : ''}`}
+                    onClick={() => setFilterRisk('medium')}
+                    title="Filter medium risk clauses"
+                  >
+                    <span className="c-num">{mediumRiskCount}</span>
+                    <span className="c-text">Medium Risk</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`count-chip low ${filterRisk === 'low' ? 'active' : ''}`}
+                    onClick={() => setFilterRisk('low')}
+                    title="Filter standard low risk clauses"
+                  >
+                    <span className="c-num">{lowRiskCount}</span>
+                    <span className="c-text">Standard Terms</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`count-chip total ${filterRisk === 'all' ? 'active' : ''}`}
+                    onClick={() => setFilterRisk('all')}
+                    title="View all clauses"
+                  >
+                    <span className="c-num">{clauses.length}</span>
+                    <span className="c-text">All Clauses</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Summary card */}
               <div className="summary-card card">
                 <div className="summary-card-top">
