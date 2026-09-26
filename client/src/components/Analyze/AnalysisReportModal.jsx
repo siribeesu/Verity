@@ -8,9 +8,11 @@ import {
   CheckCircle2,
   FileText,
   Calendar,
-  Check
+  Check,
+  Download
 } from 'lucide-react'
 import Logo from '../Layout/Logo'
+import { exportAnalysisToMarkdown, exportAnalysisToJson } from '../../utils/historyStorage'
 import './AnalysisReportModal.css'
 
 export default function AnalysisReportModal({ result, docText, docType, jurisdiction, onClose }) {
@@ -36,6 +38,14 @@ export default function AnalysisReportModal({ result, docText, docType, jurisdic
     window.print()
   }
 
+  function handleExportMd() {
+    exportAnalysisToMarkdown(result, `legalassist-report-${new Date().toISOString().slice(0, 10)}.md`)
+  }
+
+  function handleExportJson() {
+    exportAnalysisToJson(result, `legalassist-analysis-${new Date().toISOString().slice(0, 10)}.json`)
+  }
+
   return (
     <div
       className="report-modal-overlay"
@@ -51,9 +61,17 @@ export default function AnalysisReportModal({ result, docText, docType, jurisdic
             <span id="report-modal-title" className="toolbar-title">Document Clarity Report Preview</span>
           </div>
           <div className="toolbar-actions">
+            <button type="button" className="btn btn-secondary btn-sm" onClick={handleExportMd} title="Export as Markdown (.md)">
+              <Download size={14} />
+              <span>Export .MD</span>
+            </button>
+            <button type="button" className="btn btn-secondary btn-sm" onClick={handleExportJson} title="Export as structured JSON">
+              <Download size={14} />
+              <span>Export .JSON</span>
+            </button>
             <button type="button" className="btn btn-primary btn-sm" onClick={handlePrint} aria-label="Print or save as PDF">
               <Printer size={15} />
-              <span>Print / Save as PDF</span>
+              <span>Print / PDF</span>
             </button>
             <button type="button" className="btn btn-ghost btn-sm close-modal-btn" onClick={onClose} aria-label="Close report dialog">
               <X size={18} />

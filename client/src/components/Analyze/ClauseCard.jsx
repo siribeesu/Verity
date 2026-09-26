@@ -129,6 +129,16 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
               <RiskIcon size={12} />
               <span>{config.label}</span>
             </span>
+            {clause.section_ref && (
+              <span className="section-ref-badge" title="Referenced in document text">
+                § {clause.section_ref}
+              </span>
+            )}
+            {clause.confidence_score !== undefined && (
+              <span className="confidence-badge" title="Model grounding confidence">
+                {Math.round(clause.confidence_score * 100)}% Confidence
+              </span>
+            )}
           </div>
           <h3 className="clause-title">{clause.title}</h3>
         </div>

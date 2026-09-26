@@ -44,6 +44,8 @@ OUTPUT: Respond ONLY with a valid JSON object (no markdown, no prose before or a
       "title": "short descriptive title",
       "category": "one of: Payment | Termination | Liability | Privacy | IP | Non-Compete | Arbitration | Indemnification | Confidentiality | Repairs | Auto-Renewal | Governing Law | Other",
       "original_excerpt": "verbatim quote from the document, under 40 words",
+      "section_ref": "Section number or paragraph where this clause appears, e.g. Section 2.1",
+      "confidence_score": 0.95,
       "explanation": "plain-language explanation",
       "risk": "low | medium | high",
       "risk_reason": "one sentence starting with 'Worth noting because...' or 'Routine clause.' for low risk"
