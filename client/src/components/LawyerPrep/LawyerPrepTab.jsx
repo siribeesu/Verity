@@ -11,7 +11,11 @@ import {
   Check,
   Edit3,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Plus,
+  Trash2,
+  CheckSquare,
+  Square
 } from 'lucide-react'
 import './LawyerPrepTab.css'
 
@@ -20,6 +24,11 @@ export default function LawyerPrepTab({ analyzeResult }) {
   const [copied, setCopied] = useState(false)
   const [notes, setNotes] = useState({})
   const [activeNoteId, setActiveNoteId] = useState(null)
+  const [selectedQuestions, setSelectedQuestions] = useState({})
+  const [customQuestions, setCustomQuestions] = useState([])
+  const [newQuestionText, setNewQuestionText] = useState('')
+  const [newQuestionReason, setNewQuestionReason] = useState('')
+  const [showAddCustom, setShowAddCustom] = useState(false)
 
   useEffect(() => {
     if (analyzeResult && !result) {
@@ -27,13 +36,75 @@ export default function LawyerPrepTab({ analyzeResult }) {
     }
   }, [analyzeResult])
 
-  function handleCopy() {
+  useEffect(() => {
+    if (result?.questions) {
+      const initial = {}
+      result.questions.forEach((_, idx) => {
+        initial[idx] = true
+      })
+      setSelectedQuestions(initial)
+    }
+  }, [result])
+
+  function toggleQuestion(idx) {
+    setSelectedQuestions((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }))
+  }
+
+  function handleSelectAll(val) {
     if (!result?.questions) return
-    const text = result.questions
+    const updated = {}
+    result.questions.forEach((_, idx) => {
+      updated[idx] = val
+    })
+    setSelectedQuestions(updated)
+  }
+
+  function handleAddCustomQuestion(e) {
+    e.preventDefault()
+    if (!newQuestionText.trim()) return
+    setCustomQuestions((prev) => [
+      ...prev,
+      {
+        question: newQuestionText.trim(),
+        why_it_matters: newQuestionReason.trim() || 'Custom priority issue for your specific contract context.'
+      }
+    ])
+    setNewQuestionText('')
+    setNewQuestionReason('')
+    setShowAddCustom(false)
+  }
+
+  function handleDeleteCustom(idx) {
+    setCustomQuestions((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  function getActiveQuestionsForExport() {
+    const list = []
+    if (result?.questions) {
+      result.questions.forEach((q, i) => {
+        if (selectedQuestions[i]) {
+          list.push({ ...q, note: notes[i], isCustom: false })
+        }
+      })
+    }
+    customQuestions.forEach((q, i) => {
+      list.push({ ...q, note: notes[`custom-${i}`], isCustom: true })
+    })
+    return list
+  }
+
+  function handleCopy() {
+    const active = getActiveQuestionsForExport()
+    if (active.length === 0) return
+
+    const text = active
       .map((q, i) => {
         let entry = `${i + 1}. ${q.question}\n   Why it matters: ${q.why_it_matters}`
-        if (notes[i]) {
-          entry += `\n   My Consultation Notes: ${notes[i]}`
+        if (q.note) {
+          entry += `\n   My Consultation Notes: ${q.note}`
         }
         return entry
       })
@@ -45,12 +116,14 @@ export default function LawyerPrepTab({ analyzeResult }) {
   }
 
   function handleDownloadBrief() {
-    if (!result?.questions) return
-    const text = result.questions
+    const active = getActiveQuestionsForExport()
+    if (active.length === 0) return
+
+    const text = active
       .map((q, i) => {
         let entry = `${i + 1}. ${q.question}\n   Why it matters: ${q.why_it_matters}`
-        if (notes[i]) {
-          entry += `\n   My Consultation Notes: ${notes[i]}`
+        if (q.note) {
+          entry += `\n   My Consultation Notes: ${q.note}`
         }
         return entry
       })
@@ -181,48 +254,158 @@ export default function LawyerPrepTab({ analyzeResult }) {
               </div>
             </div>
 
+            {/* Question selection & custom question toolbar */}
+            <div className="questions-tracker-bar card">
+              <div className="tracker-left">
+                <span className="tracker-status">
+                  <strong>{getActiveQuestionsForExport().length}</strong> of{' '}
+                  {(result?.questions?.length || 0) + customQuestions.length} questions included in agenda
+                </span>
+                <div className="tracker-select-btns">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => handleSelectAll(true)}
+                  >
+                    Select All
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => handleSelectAll(false)}
+                  >
+                    Deselect All
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm add-custom-q-btn"
+                onClick={() => setShowAddCustom((s) => !s)}
+              >
+                <Plus size={14} />
+                <span>{showAddCustom ? 'Cancel' : 'Add Custom Question'}</span>
+              </button>
+            </div>
+
+            {/* Custom Question Form */}
+            {showAddCustom && (
+              <form onSubmit={handleAddCustomQuestion} className="custom-question-form card animate-fade-in">
+                <h4>Add Specific Question for Your Lawyer</h4>
+                <div className="form-field">
+                  <label htmlFor="custom-q-text">Your Question:</label>
+                  <input
+                    id="custom-q-text"
+                    type="text"
+                    placeholder="e.g. Can the landlord deduct normal wear and tear from my security deposit in this state?"
+                    value={newQuestionText}
+                    onChange={(e) => setNewQuestionText(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="custom-q-reason">Why It Matters to You:</label>
+                  <input
+                    id="custom-q-reason"
+                    type="text"
+                    placeholder="e.g. The lease has an aggressive $350 mandatory cleaning fee on move-out."
+                    value={newQuestionReason}
+                    onChange={(e) => setNewQuestionReason(e.target.value)}
+                  />
+                </div>
+                <div className="form-buttons">
+                  <button type="submit" className="btn btn-primary btn-sm">
+                    Save to Consultation List
+                  </button>
+                </div>
+              </form>
+            )}
+
             <ol className="questions-list">
-              {result.questions.map((q, i) => (
-                <li key={i} className="question-item card">
-                  <div className="question-number-wrap">
-                    <span className="question-number">{i + 1}</span>
-                  </div>
-
-                  <div className="question-content">
-                    <p className="question-text">{q.question}</p>
-
-                    <div className="why-matters-box">
-                      <span className="why-label">Why this is critical to ask</span>
-                      <p>{q.why_it_matters}</p>
+              {result.questions.map((q, i) => {
+                const isSelected = !!selectedQuestions[i]
+                return (
+                  <li key={i} className={`question-item card ${isSelected ? 'selected' : 'unselected'}`}>
+                    <div className="question-item-top">
+                      <button
+                        type="button"
+                        className="question-checkbox-btn"
+                        onClick={() => toggleQuestion(i)}
+                        title={isSelected ? 'Remove from consultation brief' : 'Include in consultation brief'}
+                        aria-label={isSelected ? `Deselect question ${i + 1}` : `Select question ${i + 1}`}
+                      >
+                        {isSelected ? (
+                          <CheckSquare size={18} className="checkbox-icon checked" />
+                        ) : (
+                          <Square size={18} className="checkbox-icon" />
+                        )}
+                      </button>
+                      <div className="question-number-wrap">
+                        <span className="question-number">{i + 1}</span>
+                      </div>
                     </div>
 
-                    {/* Interactive meeting note */}
-                    <div className="question-notes-section">
-                      {activeNoteId === i || notes[i] ? (
-                        <div className="notes-editor animate-fade-in">
-                          <label className="notes-label" htmlFor={`note-${i}`}>
+                    <div className="question-content">
+                      <p className="question-text">{q.question}</p>
+
+                      <div className="why-matters-box">
+                        <span className="why-label">Why this is critical to ask</span>
+                        <p>{q.why_it_matters}</p>
+                      </div>
+
+                      {/* Interactive meeting note */}
+                      <div className="question-notes-section">
+                        {activeNoteId === i || notes[i] ? (
+                          <div className="notes-editor animate-fade-in">
+                            <label className="notes-label" htmlFor={`note-${i}`}>
+                              <Edit3 size={12} />
+                              <span>Attorney's Advice / Your Notes:</span>
+                            </label>
+                            <textarea
+                              id={`note-${i}`}
+                              value={notes[i] || ''}
+                              onChange={(e) => handleNoteChange(i, e.target.value)}
+                              placeholder="Type notes from your conversation here..."
+                              rows={2}
+                              className="notes-textarea"
+                            />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-ghost btn-sm add-note-btn"
+                            onClick={() => setActiveNoteId(i)}
+                          >
                             <Edit3 size={12} />
-                            <span>Attorney's Advice / Your Notes:</span>
-                          </label>
-                          <textarea
-                            id={`note-${i}`}
-                            value={notes[i] || ''}
-                            onChange={(e) => handleNoteChange(i, e.target.value)}
-                            placeholder="Type notes from your conversation here..."
-                            rows={2}
-                            className="notes-textarea"
-                          />
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-sm add-note-btn"
-                          onClick={() => setActiveNoteId(i)}
-                        >
-                          <Edit3 size={12} />
-                          <span>+ Add Consultation Note</span>
-                        </button>
-                      )}
+                            <span>+ Add Consultation Note</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                )
+              })}
+
+              {/* Custom questions */}
+              {customQuestions.map((q, i) => (
+                <li key={`custom-${i}`} className="question-item card custom-question-item selected">
+                  <div className="question-item-top">
+                    <span className="custom-q-badge">Custom</span>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs delete-custom-btn"
+                      onClick={() => handleDeleteCustom(i)}
+                      title="Remove custom question"
+                      aria-label="Remove custom question"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                  <div className="question-content">
+                    <p className="question-text">{q.question}</p>
+                    <div className="why-matters-box">
+                      <span className="why-label">Why you added this</span>
+                      <p>{q.why_it_matters}</p>
                     </div>
                   </div>
                 </li>

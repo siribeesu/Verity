@@ -150,6 +150,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
               className="btn btn-ghost btn-sm clause-action-btn"
               onClick={() => onHighlightExcerpt(clause.original_excerpt)}
               title="Locate and highlight this clause in document text"
+              aria-label="Locate and highlight this clause in document text"
             >
               <Crosshair size={13} />
             </button>
@@ -159,6 +160,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
             className="btn btn-ghost btn-sm clause-action-btn"
             onClick={handleCopyExplanation}
             title="Copy plain-English explanation"
+            aria-label="Copy plain-English explanation"
           >
             {copiedExplanation ? <Check size={13} className="text-success" /> : <Copy size={13} />}
           </button>
@@ -168,6 +170,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
               className="btn btn-secondary btn-sm clause-ask-btn"
               onClick={() => onAskAboutClause(clause)}
               title="Ask AI questions about this specific clause"
+              aria-label={`Ask AI questions about ${clause.title || 'this clause'}`}
             >
               <MessageSquarePlus size={13} />
               <span>Ask AI</span>
@@ -266,6 +269,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
                 className="btn btn-ghost btn-sm copy-excerpt-btn"
                 onClick={handleCopyExcerpt}
                 title="Copy original excerpt"
+                aria-label="Copy verbatim excerpt to clipboard"
               >
                 {copiedExcerpt ? <Check size={12} /> : <Copy size={12} />}
                 <span>{copiedExcerpt ? 'Copied' : 'Copy Quote'}</span>

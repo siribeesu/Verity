@@ -43,7 +43,7 @@ export default function CompareTab() {
   const canRun = (textA.trim() || fileA) && (textB.trim() || fileB)
 
   return (
-    <div className="compare-tab">
+    <div className="compare-tab" role="region" aria-label="Contract Comparison Workspace">
       <div className="compare-container">
         <div className="compare-intro-card card">
           <div className="compare-intro">
@@ -55,7 +55,7 @@ export default function CompareTab() {
         </div>
 
         {/* Input row */}
-        <div className="compare-inputs-grid">
+        <div className="compare-inputs-grid" role="region" aria-label="Baseline and Revised Document Inputs">
           <div className="compare-input-card card">
             <div className="compare-card-badge doc-a">Document A (Original / Baseline)</div>
             <DocumentInput

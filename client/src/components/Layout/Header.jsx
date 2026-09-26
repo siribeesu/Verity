@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import {
   FileSearch,
   GitCompare,
@@ -7,17 +6,23 @@ import {
   Home,
   LogOut,
   ShieldCheck,
-  BarChart3
+  BarChart3,
+  BookOpen,
+  Keyboard
 } from 'lucide-react'
 import Logo from './Logo'
 import DisclaimerBanner from './DisclaimerBanner'
 import ComplianceModal from './ComplianceModal'
 import AdminModal from './AdminModal'
+import LegalGlossaryModal from '../LegalGuide/LegalGlossaryModal'
+import KeyboardShortcutsModal from './KeyboardShortcutsModal'
 import './Header.css'
 
 export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, accountLabel, onSignOut }) {
   const [showCompliance, setShowCompliance] = useState(false)
   const [showAdmin, setShowAdmin] = useState(false)
+  const [showLegalGuide, setShowLegalGuide] = useState(false)
+  const [showShortcuts, setShowShortcuts] = useState(false)
   const tabs = [
     { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
     { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
@@ -59,8 +64,10 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, account
               return (
                 <button
                   key={tab.id}
+                  id={`tab-${tab.id}`}
                   role="tab"
                   aria-selected={isActive}
+                  aria-controls={`tabpanel-${tab.id}`}
                   className={`tab-btn ${isActive ? 'active' : ''}`}
                   onClick={() => onTabChange(tab.id)}
                   title={tab.desc}
@@ -77,13 +84,26 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, account
 
           <button
             type="button"
+            className="btn btn-ghost btn-sm guide-nav-btn"
+            onClick={() => setShowLegalGuide(true)}
+            title="Legal Doctrine Knowledge Base & Negotiation Guide"
+            aria-label="Legal Doctrine Knowledge Base & Negotiation Guide"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.3rem', color: 'var(--color-primary)' }}
+          >
+            <BookOpen size={15} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Legal Guide</span>
+          </button>
+
+          <button
+            type="button"
             className="btn btn-ghost btn-sm compliance-nav-btn"
             onClick={() => setShowCompliance(true)}
             title="Privacy, zero-retention policy, and audit trail"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.4rem', color: 'var(--color-primary)' }}
+            aria-label="Privacy and Trust Center"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.2rem', color: 'var(--color-primary)' }}
           >
             <ShieldCheck size={15} />
-            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Privacy & Trust</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Trust</span>
           </button>
 
           <button
@@ -91,16 +111,31 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, account
             className="btn btn-ghost btn-sm admin-nav-btn"
             onClick={() => setShowAdmin(true)}
             title="Admin Observability, Performance Metrics & RBAC"
+            aria-label="Admin Observability & Metrics"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.2rem', color: 'var(--color-text-secondary)' }}
           >
             <BarChart3 size={15} />
             <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Admin</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm shortcuts-nav-btn"
+            onClick={() => setShowShortcuts(true)}
+            title="Keyboard Navigation Shortcuts (Press ?)"
+            aria-label="Keyboard Shortcuts"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.2rem', color: 'var(--color-text-secondary)' }}
+          >
+            <Keyboard size={15} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>?</span>
           </button>
         </div>
       </div>
 
       <ComplianceModal isOpen={showCompliance} onClose={() => setShowCompliance(false)} />
       <AdminModal isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
+      <LegalGlossaryModal isOpen={showLegalGuide} onClose={() => setShowLegalGuide(false)} />
+      <KeyboardShortcutsModal isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
     </header>
   )
 }
