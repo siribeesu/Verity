@@ -23,3 +23,11 @@ test('sanitizePII preserves text without recognized personal information', () =>
 
   assert.deepEqual(sanitizePII(text), { sanitizedText: text, redactionsCount: 0 })
 })
+
+test('sanitizePII strips executable script tags to prevent XSS and prompt injection', () => {
+  const text = 'Clause: Comply with terms. <script>alert(1)</script>'
+  const result = sanitizePII(text)
+  assert.equal(result.redactionsCount, 1)
+  assert.match(result.sanitizedText, /\[REDACTED SCRIPT\]/)
+  assert.doesNotMatch(result.sanitizedText, /<script>/)
+})

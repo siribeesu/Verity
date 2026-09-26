@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CheckSquare, Square, CheckCheck, Copy, Check } from 'lucide-react'
+import { CheckSquare, Square, CheckCheck, Copy, Check, Download } from 'lucide-react'
 import './ActionChecklist.css'
 
 export default function ActionChecklist({ items }) {
@@ -27,6 +27,22 @@ export default function ActionChecklist({ items }) {
     setTimeout(() => setCopied(false), 1500)
   }
 
+  function handleDownloadChecklist() {
+    const text = items
+      .map((item, i) => `${checkedState[i] ? '[x] (COMPLETED)' : '[ ] (PENDING)'} ${item}`)
+      .join('\n')
+    const fileContent = `LEGALASSIST ACTION CHECKLIST & NEXT STEPS\nGenerated on: ${new Date().toLocaleDateString()}\nProgress: ${completedCount} of ${items.length} tasks completed\n\n============================================================\n\n${text}\n\nDisclaimer: LegalAssist provides informational assistance and is not a substitute for licensed legal counsel.`
+    const blob = new Blob([fileContent], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `legalassist-action-checklist-${new Date().toISOString().slice(0, 10)}.txt`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <section className="checklist-section card animate-fade-in">
       <div className="checklist-header-row">
@@ -38,15 +54,26 @@ export default function ActionChecklist({ items }) {
           </span>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm copy-checklist-btn"
-          onClick={handleCopyChecklist}
-          title="Copy checklist"
-        >
-          {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
-          <span>{copied ? 'Copied' : 'Copy List'}</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm copy-checklist-btn"
+            onClick={handleCopyChecklist}
+            title="Copy checklist"
+          >
+            {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
+            <span>{copied ? 'Copied' : 'Copy List'}</span>
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm copy-checklist-btn"
+            onClick={handleDownloadChecklist}
+            title="Download checklist as .txt"
+          >
+            <Download size={13} />
+            <span>Download</span>
+          </button>
+        </div>
       </div>
 
       <div className="checklist-progress-bar-wrap">

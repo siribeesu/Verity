@@ -10,8 +10,12 @@ const memoryCache = new Map();
 const MAX_CACHE_ENTRIES = 200;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-function generateCacheKey({ text, docType = 'general', readingLevel = 'informed', jurisdiction = null }) {
-  const normalized = `${(text || '').trim()}||${docType}||${readingLevel}||${jurisdiction || ''}`;
+function generateCacheKey(params) {
+  if (!params || typeof params !== 'object') {
+    return crypto.createHash('sha256').update('').digest('hex');
+  }
+  const sortedKeys = Object.keys(params).sort();
+  const normalized = sortedKeys.map((k) => `${k}:${JSON.stringify(params[k])}`).join('|');
   return crypto.createHash('sha256').update(normalized).digest('hex');
 }
 

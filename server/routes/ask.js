@@ -5,6 +5,7 @@ const { streamCompletion } = require('../services/claudeClient');
 const { chunk, retrieveRelevant } = require('../services/chunker');
 const { buildAskPrompt } = require('../prompts/ask');
 const { MAX_DOCUMENT_CHARS } = require('../services/documentLimits');
+const { sanitizePII } = require('../services/piiSanitizer');
 
 // POST /api/ask
 // Body: { text, messages: [{role, content}], question }
@@ -32,6 +33,14 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'Conversation history is invalid.' });
     }
 
+    // Server-side PII sanitization for user question, text, and chat history
+    const { sanitizedText: cleanText } = sanitizePII(text);
+    const { sanitizedText: cleanQuestion } = sanitizePII(question);
+    const cleanMessages = messages.slice(-8).map((m) => ({
+      ...m,
+      content: typeof m.content === 'string' ? sanitizePII(m.content).sanitizedText : m.content,
+    }));
+
     // Set up SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -43,16 +52,16 @@ router.post('/', async (req, res, next) => {
     };
 
     // Retrieve relevant chunks for long documents
-    const chunks = chunk(text);
-    const relevantChunks = retrieveRelevant(chunks, question, 3);
+    const chunks = chunk(cleanText);
+    const relevantChunks = retrieveRelevant(chunks, cleanQuestion, 3);
     const documentContext = relevantChunks.join('\n\n---\n\n');
 
     const systemPrompt = buildAskPrompt({ documentContext });
 
     // Build conversation history
     const conversationMessages = [
-      ...messages.slice(-8), // keep last 8 turns for context
-      { role: 'user', content: question },
+      ...cleanMessages,
+      { role: 'user', content: cleanQuestion },
     ];
 
     let fullResponse = '';

@@ -26,3 +26,11 @@ test('sanitizePII preserves text without personal information', () => {
   assert.equal(result.redactionsCount, 0);
   assert.equal(result.sanitizedText, text);
 });
+
+test('sanitizePII strips executable script tags to prevent XSS and prompt injection', () => {
+  const text = 'Clause 1: Pay rent. <script>alert("hacked")</script> Clause 2: Comply with rules.';
+  const result = sanitizePII(text);
+  assert.equal(result.redactionsCount, 1);
+  assert.match(result.sanitizedText, /\[REDACTED SCRIPT\]/);
+  assert.doesNotMatch(result.sanitizedText, /alert\("hacked"\)/);
+});
