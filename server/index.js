@@ -16,6 +16,10 @@ const compareRoute = require('./routes/compare');
 const askRoute = require('./routes/ask');
 const lawyerPrepRoute = require('./routes/lawyerPrep');
 const complianceRoute = require('./routes/compliance');
+const authRoute = require('./routes/auth');
+const documentsRoute = require('./routes/documents');
+const adminRoute = require('./routes/admin');
+const { sessionMiddleware } = require('./middleware/session');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -208,12 +212,16 @@ app.get('/api/health', (_req, res) => {
 
 if (authenticate) app.use('/api', authenticate);
 if (userApiLimiter) app.use('/api', userApiLimiter);
+app.use(sessionMiddleware);
 
 app.use('/api/analyze', analyzeRoute);
 app.use('/api/compare', compareRoute);
 app.use('/api/ask', askRoute);
 app.use('/api/lawyer-prep', lawyerPrepRoute);
 app.use('/api/compliance', complianceRoute);
+app.use('/api/auth', authRoute);
+app.use('/api/documents', documentsRoute);
+app.use('/api/admin', adminRoute);
 
 // Serve built frontend assets when running in unified production/container mode
 const path = require('path');

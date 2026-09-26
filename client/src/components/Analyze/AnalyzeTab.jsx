@@ -34,8 +34,12 @@ import {
   Trash2,
   X,
   Calendar,
-  Clock
+  Clock,
+  FolderArchive,
+  BookmarkPlus,
+  Check
 } from 'lucide-react'
+import DocumentLibraryModal from './DocumentLibraryModal'
 import './AnalyzeTab.css'
 
 const DOC_TYPES = [
@@ -65,7 +69,10 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
   const [clauseSearch, setClauseSearch] = useState('')
   const [showReportModal, setShowReportModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [showLibraryModal, setShowLibraryModal] = useState(false)
   const [historyList, setHistoryList] = useState([])
+  const [savingToLibrary, setSavingToLibrary] = useState(false)
+  const [saveStatus, setSaveStatus] = useState(null)
 
   const { result, loading, error, run, setResult } = useAnalyze()
 
@@ -89,6 +96,49 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
       }
     }
   }, [result])
+
+  async function handleSaveToLibrary() {
+    if (!text || !result) return
+    setSavingToLibrary(true)
+    try {
+      const titleCandidate =
+        result.summary?.slice(0, 40)?.replace(/[^\w\s-]/g, '') ||
+        `${docType.toUpperCase()} Agreement`
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: titleCandidate,
+          docType,
+          jurisdiction: jurisdiction || null,
+          text,
+          result
+        })
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSaveStatus(`Saved v${data.document?.version || 1}!`)
+        setTimeout(() => setSaveStatus(null), 3500)
+      } else {
+        throw new Error(`Status ${res.status}`)
+      }
+    } catch (err) {
+      alert('Failed to save document to library: ' + err.message)
+    } finally {
+      setSavingToLibrary(false)
+    }
+  }
+
+  function handleLoadFromLibrary(doc) {
+    setText(doc.text || '')
+    setDocType(doc.docType || 'general')
+    setJurisdiction(doc.jurisdiction || '')
+    setFile(null)
+    if (doc.result) {
+      setResult(doc.result)
+      onAnalysisComplete?.(doc.result, doc.text)
+    }
+  }
 
   function handleLoadHistoryItem(item) {
     setText(item.docText || '')
@@ -161,6 +211,15 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             <h2>Source Document</h2>
           </div>
           <div className="panel-header-actions-left">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm library-toggle-btn"
+              onClick={() => setShowLibraryModal(true)}
+              title="Browse server contract library & versions"
+            >
+              <FolderArchive size={13} />
+              <span>Library</span>
+            </button>
             {historyList.length > 0 && (
               <button
                 type="button"
@@ -299,6 +358,19 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             <h2>Document Analysis & Breakdown</h2>
           </div>
           <div className="panel-header-actions-right">
+            {result && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm save-library-btn"
+                onClick={handleSaveToLibrary}
+                disabled={savingToLibrary}
+                title="Save this contract to persistent library with automatic version tracking"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                {saveStatus ? <Check size={14} style={{ color: '#16a34a' }} /> : <BookmarkPlus size={14} />}
+                <span>{saveStatus || (savingToLibrary ? 'Saving...' : 'Save to Library')}</span>
+              </button>
+            )}
             {result && (
               <button
                 type="button"
@@ -609,6 +681,13 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
           onClose={() => setShowReportModal(false)}
         />
       )}
+
+      {/* Persistent Contract Library Modal */}
+      <DocumentLibraryModal
+        isOpen={showLibraryModal}
+        onClose={() => setShowLibraryModal(false)}
+        onLoadDocument={handleLoadFromLibrary}
+      />
     </div>
   )
 }
