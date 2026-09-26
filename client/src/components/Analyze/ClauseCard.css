@@ -224,6 +224,13 @@
   color: var(--color-primary-hover);
 }
 
+.counter-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .copy-counter-btn {
   font-size: 0.72rem;
   padding: 2px 7px;

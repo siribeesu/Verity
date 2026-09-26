@@ -6,6 +6,7 @@ const { structuredCompletion } = require('../services/claudeClient');
 const { parseFile } = require('../services/documentParser');
 const { MAX_DOCUMENT_CHARS, MAX_UPLOAD_BYTES } = require('../services/documentLimits');
 const { buildComparePrompt } = require('../prompts/compare');
+const { sanitizePII } = require('../services/piiSanitizer');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
@@ -36,11 +37,15 @@ router.post('/', upload.fields([{ name: 'documentA', maxCount: 1 }, { name: 'doc
       return res.status(400).json({ error: 'Document B is too short or missing.' });
     }
 
+    // Server-side PII sanitization for both documents
+    const { sanitizedText: cleanA } = sanitizePII(textA);
+    const { sanitizedText: cleanB } = sanitizePII(textB);
+
     const systemPrompt = buildComparePrompt({ docType });
 
     const result = await structuredCompletion({
       systemPrompt,
-      userContent: `Compare these two documents:\n\n=== DOCUMENT A ===\n${textA}\n\n=== DOCUMENT B ===\n${textB}`,
+      userContent: `Compare these two documents:\n\n<document_a>\n${cleanA}\n</document_a>\n\n<document_b>\n${cleanB}\n</document_b>`,
       maxTokens: 4096,
     });
 

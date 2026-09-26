@@ -198,9 +198,9 @@ app.use('/api/lawyer-prep', lawyerPrepRoute);
 // Global error handler
 app.use((err, _req, res, _next) => {
   const status = err.statusCode || err.status || 500;
-  console.error('[LegalAssist Server Error]', err.name || 'Error', status);
+  console.error('[LegalAssist Server Error]', err.name || 'Error', status, err.message);
   res.status(status).json({
-    error: status >= 500 ? 'Internal server error' : err.message,
+    error: err.message || (status >= 500 ? 'Internal server error' : 'Unknown error'),
   });
 });
 

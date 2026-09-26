@@ -170,6 +170,19 @@ export default function ScenarioNavigator({ docType = 'general', onAskScenario }
               <pre className="script-text">{selectedScenario.script}</pre>
             </div>
           )}
+
+          {onAskScenario && (
+            <div className="scenario-ask-ai-row" style={{ marginTop: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid var(--color-border)' }}>
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => onAskScenario(selectedScenario)}
+              >
+                <MessageSquare size={13} />
+                <span>Ask LegalAssist about this scenario in my document</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

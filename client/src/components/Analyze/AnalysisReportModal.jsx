@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Printer,
   X,
@@ -16,6 +16,16 @@ import './AnalysisReportModal.css'
 export default function AnalysisReportModal({ result, docText, docType, jurisdiction, onClose }) {
   if (!result) return null
 
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        onClose?.()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   const clauses = result.clauses || []
   const highRiskCount = clauses.filter((c) => c.risk === 'high').length
   const mediumRiskCount = clauses.filter((c) => c.risk === 'medium').length
@@ -27,19 +37,25 @@ export default function AnalysisReportModal({ result, docText, docType, jurisdic
   }
 
   return (
-    <div className="report-modal-overlay" onClick={onClose}>
+    <div
+      className="report-modal-overlay"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="report-modal-title"
+    >
       <div className="report-modal-container" onClick={(e) => e.stopPropagation()}>
         {/* Modal Toolbar (hidden on print) */}
         <div className="report-modal-toolbar no-print">
           <div className="toolbar-left">
-            <span className="toolbar-title">Document Clarity Report Preview</span>
+            <span id="report-modal-title" className="toolbar-title">Document Clarity Report Preview</span>
           </div>
           <div className="toolbar-actions">
-            <button type="button" className="btn btn-primary btn-sm" onClick={handlePrint}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={handlePrint} aria-label="Print or save as PDF">
               <Printer size={15} />
               <span>Print / Save as PDF</span>
             </button>
-            <button type="button" className="btn btn-ghost btn-sm close-modal-btn" onClick={onClose}>
+            <button type="button" className="btn btn-ghost btn-sm close-modal-btn" onClick={onClose} aria-label="Close report dialog">
               <X size={18} />
             </button>
           </div>

@@ -11,7 +11,8 @@ import {
   Quote,
   Sparkles,
   Lightbulb,
-  Crosshair
+  Crosshair,
+  Mail
 } from 'lucide-react'
 import './ClauseCard.css'
 
@@ -82,6 +83,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
   const [copiedExcerpt, setCopiedExcerpt] = useState(false)
   const [copiedExplanation, setCopiedExplanation] = useState(false)
   const [copiedCounter, setCopiedCounter] = useState(false)
+  const [copiedEmail, setCopiedEmail] = useState(false)
 
   const riskLevel = clause.risk || 'low'
   const config = RISK_CONFIG[riskLevel] || RISK_CONFIG.low
@@ -107,6 +109,14 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
     navigator.clipboard.writeText(counterProposal.counterText)
     setCopiedCounter(true)
     setTimeout(() => setCopiedCounter(false), 1500)
+  }
+
+  function handleCopyNegotiationEmail() {
+    if (!counterProposal) return
+    const emailBody = `Hello,\n\nThank you for sharing the proposed agreement. Upon review of Section regarding "${clause.title}", I noticed the current wording:\n"${clause.original_excerpt || clause.title}"\n\nTo ensure balanced terms and mutual clarity, I would like to propose the following revision:\n"${counterProposal.counterText}"\n\nRationale: ${counterProposal.tip}\n\nPlease let me know if this adjustment is acceptable so we can proceed.\n\nBest regards,\n[Your Name]`
+    navigator.clipboard.writeText(emailBody)
+    setCopiedEmail(true)
+    setTimeout(() => setCopiedEmail(false), 1500)
   }
 
   return (
@@ -182,6 +192,7 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
               type="button"
               className="counter-proposal-toggle-btn"
               onClick={() => setCounterOpen((o) => !o)}
+              aria-expanded={counterOpen}
             >
               <Lightbulb size={13} className="lightbulb-icon" />
               <span>{counterOpen ? 'Hide Suggested Counter-Clause' : '💡 Suggest Fair Replacement Clause'}</span>
@@ -192,15 +203,26 @@ export default function ClauseCard({ clause, onAskAboutClause, onHighlightExcerp
               <div className="counter-proposal-box animate-fade-in">
                 <div className="counter-header">
                   <span className="counter-label">Proposed Balanced Language:</span>
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm copy-counter-btn"
-                    onClick={handleCopyCounter}
-                    title="Copy counter-clause to clipboard"
-                  >
-                    {copiedCounter ? <Check size={12} className="text-success" /> : <Copy size={12} />}
-                    <span>{copiedCounter ? 'Copied' : 'Copy Replacement'}</span>
-                  </button>
+                  <div className="counter-btn-group">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm copy-counter-btn"
+                      onClick={handleCopyCounter}
+                      title="Copy counter-clause to clipboard"
+                    >
+                      {copiedCounter ? <Check size={12} className="text-success" /> : <Copy size={12} />}
+                      <span>{copiedCounter ? 'Copied' : 'Copy Replacement'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm copy-counter-btn"
+                      onClick={handleCopyNegotiationEmail}
+                      title="Copy formal counter-proposal email draft"
+                    >
+                      {copiedEmail ? <Check size={12} className="text-success" /> : <Mail size={12} />}
+                      <span>{copiedEmail ? 'Copied Email' : 'Copy Email Draft'}</span>
+                    </button>
+                  </div>
                 </div>
                 <blockquote className="counter-quote-text">
                   "{counterProposal.counterText}"
