@@ -116,7 +116,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
   return (
     <div className="ask-tab">
       {/* Left: document panel */}
-      <div className="ask-doc-panel">
+      <div className="ask-doc-panel" role="region" aria-label="Reference Document Context">
         <div className="panel-header">
           <div className="panel-title-group">
             <FileText size={18} className="panel-header-icon" />
@@ -188,7 +188,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
       </div>
 
       {/* Right: chat panel */}
-      <div className="ask-chat-panel">
+      <div className="ask-chat-panel" role="region" aria-label="Interactive Legal Q&A Chat">
         <div className="panel-header">
           <div className="panel-title-group">
             <MessageSquareQuote size={18} className="panel-header-icon highlight" />
@@ -282,7 +282,7 @@ export default function AskTab({ preloadedText, initialQuestion }) {
 
         <div className="chat-input-area">
           {error && (
-            <div className="error-message" style={{ marginBottom: '0.65rem' }}>
+            <div className="error-message" role="alert" aria-live="assertive" style={{ marginBottom: '0.65rem' }}>
               {error}
             </div>
           )}
@@ -299,12 +299,14 @@ export default function AskTab({ preloadedText, initialQuestion }) {
               }
               disabled={!docLoaded || streaming}
               rows={2}
+              aria-label="Ask a question about this document"
             />
             <button
               className="btn btn-primary send-btn"
               onClick={handleSend}
               disabled={!question.trim() || streaming || !docLoaded}
               title="Send question"
+              aria-label="Send question"
             >
               {streaming ? <span className="spinner" /> : <Send size={16} />}
             </button>

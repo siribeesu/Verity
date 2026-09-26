@@ -96,11 +96,14 @@ export default function DocumentInput({
         </label>
 
         <div className="input-header-actions">
-          <div className="mode-toggle">
+          <div className="mode-toggle" role="tablist" aria-label="Input Mode Selector">
             <button
               className={`mode-btn ${mode === 'paste' ? 'active' : ''}`}
               onClick={() => { setMode('paste'); clearFile() }}
               type="button"
+              role="tab"
+              aria-selected={mode === 'paste'}
+              aria-label="Paste text mode"
             >
               <FileText size={13} />
               <span>Paste text</span>
@@ -109,6 +112,9 @@ export default function DocumentInput({
               className={`mode-btn ${mode === 'upload' ? 'active' : ''}`}
               onClick={() => setMode('upload')}
               type="button"
+              role="tab"
+              aria-selected={mode === 'upload'}
+              aria-label="Upload file mode"
             >
               <UploadCloud size={13} />
               <span>Upload file</span>
@@ -126,6 +132,7 @@ export default function DocumentInput({
             placeholder={placeholder}
             spellCheck={false}
             className="doc-textarea"
+            aria-label={label}
           />
 
           <div className="textarea-toolbar">

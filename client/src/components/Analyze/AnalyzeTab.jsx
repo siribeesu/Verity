@@ -7,6 +7,7 @@ import AnalysisReportModal from './AnalysisReportModal'
 import FairnessMeter from './FairnessMeter'
 import DeadlinesFinancials from './DeadlinesFinancials'
 import ScenarioNavigator from './ScenarioNavigator'
+import ConsistencyChecker from './ConsistencyChecker'
 import { useAnalyze } from '../../hooks/useAnalyze'
 import {
   saveAnalysisToHistory,
@@ -204,7 +205,7 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
   return (
     <div className="analyze-tab">
       {/* Left panel — input */}
-      <div className="panel panel-left">
+      <div className="panel panel-left" role="region" aria-label="Source Document Input and Configuration">
         <div className="panel-header">
           <div className="panel-title-group">
             <FileText size={18} className="panel-header-icon" />
@@ -346,12 +347,12 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
             )}
           </button>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" role="alert" aria-live="assertive">{error}</div>}
         </div>
       </div>
 
       {/* Right panel — results */}
-      <div className="panel panel-right">
+      <div className="panel panel-right" role="region" aria-label="Analysis Results and Clause Breakdown">
         <div className="panel-header">
           <div className="panel-title-group">
             <Sparkles size={18} className="panel-header-icon highlight" />
@@ -404,7 +405,7 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
           )}
 
           {loading && (
-            <div className="empty-state loading-state">
+            <div className="empty-state loading-state" role="status" aria-live="polite">
               <div className="loading-spinner-wrap">
                 <span className="spinner loading-lg" />
               </div>
@@ -440,6 +441,9 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
 
               {/* Deadlines & Financial Commitments Extractor */}
               <DeadlinesFinancials docText={text} clauses={clauses} />
+
+              {/* Contract Consistency & Ambiguity Audit */}
+              <ConsistencyChecker docText={text} clauses={clauses} />
 
               {/* Rights & Scenario Navigator */}
               <ScenarioNavigator
