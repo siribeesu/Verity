@@ -8,6 +8,8 @@ const { RedisStore } = require('rate-limit-redis');
 const Redis = require('ioredis');
 
 const { getActiveProvider } = require('./services/claudeClient');
+const { MAX_UPLOAD_BYTES } = require('./services/documentLimits');
+const { createAuthMiddleware } = require('./middleware/auth');
 const analyzeRoute = require('./routes/analyze');
 const compareRoute = require('./routes/compare');
 const askRoute = require('./routes/ask');
@@ -22,15 +24,46 @@ const providerKeyNames = {
   grok: 'GROK_API_KEY',
 };
 const activeProvider = getActiveProvider();
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production' ||
+  (process.env.VERCEL === '1' && process.env.NODE_ENV !== 'test');
+const authConfig = {
+  issuer: process.env.AUTH_ISSUER,
+  audience: process.env.AUTH_AUDIENCE,
+  jwksUrl: process.env.AUTH_JWKS_URL,
+};
+const authValues = Object.values(authConfig);
+const hasAnyAuthConfig = authValues.some(Boolean);
+const hasCompleteAuthConfig = authValues.every(Boolean);
 
 if (isProduction) {
-  if (!process.env[providerKeyNames[activeProvider]]) {
+  const providerApiKey = (process.env[providerKeyNames[activeProvider]] || '').trim();
+  if (!providerApiKey || /^(your_|replace_with_)/i.test(providerApiKey)) {
     throw new Error(`${providerKeyNames[activeProvider]} must be configured in production.`);
   }
   if (!process.env.REDIS_URL) {
     throw new Error('REDIS_URL must be configured in production for shared rate limiting.');
   }
+  if (!hasCompleteAuthConfig) {
+    throw new Error('AUTH_ISSUER, AUTH_AUDIENCE, and AUTH_JWKS_URL must be configured in production.');
+  }
+}
+
+if (hasAnyAuthConfig && !hasCompleteAuthConfig) {
+  throw new Error('Configure AUTH_ISSUER, AUTH_AUDIENCE, and AUTH_JWKS_URL together.');
+}
+
+if (hasCompleteAuthConfig && isProduction) {
+  for (const setting of ['issuer', 'jwksUrl']) {
+    if (new URL(authConfig[setting]).protocol !== 'https:') {
+      throw new Error(`AUTH_${setting === 'issuer' ? 'ISSUER' : 'JWKS_URL'} must use HTTPS in production.`);
+    }
+  }
+}
+
+const authenticate = hasCompleteAuthConfig ? createAuthMiddleware(authConfig) : null;
+
+if (isProduction && !authenticate) {
+  throw new Error('Authentication must be configured in production.');
 }
 
 const trustProxySetting = process.env.TRUST_PROXY;
@@ -59,8 +92,8 @@ app.use(cors({
     callback(null, !origin || allowedOrigins.has(origin));
   },
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 const rateLimitWindowMs = Number(process.env.API_RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
 const rateLimitMax = Number(process.env.API_RATE_LIMIT_MAX || 200);
@@ -73,16 +106,20 @@ if (!Number.isSafeInteger(rateLimitMax) || rateLimitMax < 1) {
 }
 
 let rateLimitStore;
+let sendRedisCommand;
+let redisClient;
 if (process.env.REDIS_URL) {
-  const redisClient = new Redis(process.env.REDIS_URL, {
+  redisClient = new Redis(process.env.REDIS_URL, {
     maxRetriesPerRequest: 1,
     enableOfflineQueue: false,
   });
   redisClient.on('error', (error) => {
     console.error('[Rate Limit Redis Error]', error.message);
   });
+  sendRedisCommand = (command, ...args) => redisClient.call(command, ...args);
   rateLimitStore = new RedisStore({
-    sendCommand: (command, ...args) => redisClient.call(command, ...args),
+    prefix: 'legalassist:rate-limit:ip:',
+    sendCommand: sendRedisCommand,
   });
 }
 
@@ -97,10 +134,34 @@ const apiLimiter = rateLimit({
 
 app.use('/api/', apiLimiter);
 
+const userRateLimitMax = Number(process.env.API_USER_RATE_LIMIT_MAX || 100);
+if (!Number.isSafeInteger(userRateLimitMax) || userRateLimitMax < 1) {
+  throw new Error('API_USER_RATE_LIMIT_MAX must be a positive integer.');
+}
+
+const userApiLimiter = authenticate
+  ? rateLimit({
+    windowMs: rateLimitWindowMs,
+    limit: userRateLimitMax,
+    ...(process.env.REDIS_URL
+      ? {
+        store: new RedisStore({
+          prefix: 'legalassist:rate-limit:user:',
+          sendCommand: sendRedisCommand,
+        }),
+      }
+      : {}),
+    keyGenerator: (req) => req.auth.sub,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests for this account. Please try again later.' },
+  })
+  : null;
+
 // File upload (memory storage — files parsed immediately, not persisted)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+  limits: { fileSize: MAX_UPLOAD_BYTES },
   fileFilter: (_req, file, cb) => {
     const allowed = [
       'application/pdf',
@@ -115,19 +176,29 @@ const upload = multer({
 // Expose multer upload for routes
 app.locals.upload = upload;
 
-// Routes
+// Health check
+app.get('/api/health', (_req, res) => {
+  const redisReady = !isProduction || redisClient?.status === 'ready';
+  return res.status(redisReady ? 200 : 503).json({
+    status: redisReady ? 'ok' : 'degraded',
+    service: 'legalassist-server',
+    provider: getActiveProvider(),
+    dependencies: { redis: redisClient ? redisClient.status : 'not-configured' },
+  });
+});
+
+if (authenticate) app.use('/api', authenticate);
+if (userApiLimiter) app.use('/api', userApiLimiter);
+
 app.use('/api/analyze', analyzeRoute);
 app.use('/api/compare', compareRoute);
 app.use('/api/ask', askRoute);
 app.use('/api/lawyer-prep', lawyerPrepRoute);
 
-// Health check
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'legalassist-server', provider: getActiveProvider() }));
-
 // Global error handler
 app.use((err, _req, res, _next) => {
   const status = err.statusCode || err.status || 500;
-  console.error('[LegalAssist Server Error]', err.message || 'Unknown error');
+  console.error('[LegalAssist Server Error]', err.name || 'Error', status);
   res.status(status).json({
     error: status >= 500 ? 'Internal server error' : err.message,
   });

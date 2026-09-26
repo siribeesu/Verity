@@ -18,17 +18,17 @@ export function saveAnalysisToHistory(title, docType, docText, result) {
     // Filter out duplicates with identical text
     const filtered = existing.filter((item) => item.docText !== docText)
     const updated = [newEntry, ...filtered].slice(0, MAX_HISTORY)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
     return newEntry
   } catch (err) {
-    console.warn('Failed to save to localStorage', err)
+    console.warn('Failed to save to sessionStorage', err)
     return null
   }
 }
 
 export function getAnalysisHistory() {
   try {
-    const data = localStorage.getItem(STORAGE_KEY)
+    const data = sessionStorage.getItem(STORAGE_KEY)
     return data ? JSON.parse(data) : []
   } catch {
     return []
@@ -39,7 +39,7 @@ export function deleteAnalysisFromHistory(id) {
   try {
     const existing = getAnalysisHistory()
     const updated = existing.filter((item) => item.id !== id)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
     return updated
   } catch {
     return []
@@ -48,6 +48,6 @@ export function deleteAnalysisFromHistory(id) {
 
 export function clearAllHistory() {
   try {
-    localStorage.removeItem(STORAGE_KEY)
+    sessionStorage.removeItem(STORAGE_KEY)
   } catch {}
 }

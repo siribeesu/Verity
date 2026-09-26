@@ -5,9 +5,10 @@ const multer = require('multer');
 const { structuredCompletion } = require('../services/claudeClient');
 const { parseFile } = require('../services/documentParser');
 const { chunk } = require('../services/chunker');
+const { MAX_DOCUMENT_CHARS, MAX_UPLOAD_BYTES } = require('../services/documentLimits');
 const { buildAnalyzePrompt } = require('../prompts/analyze');
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } });
 
 // POST /api/analyze
 // Body: { text?, readingLevel?, docType?, jurisdiction? }
@@ -22,6 +23,10 @@ router.post('/', upload.single('document'), async (req, res, next) => {
     // Parse uploaded file if present
     if (req.file) {
       text = await parseFile(req.file.buffer, req.file.mimetype);
+    }
+
+    if (text.length > MAX_DOCUMENT_CHARS) {
+      return res.status(413).json({ error: `Document exceeds the ${MAX_DOCUMENT_CHARS}-character limit.` });
     }
 
     if (!text || text.trim().length < 50) {

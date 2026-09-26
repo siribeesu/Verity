@@ -4,6 +4,7 @@ const router = express.Router();
 const { streamCompletion } = require('../services/claudeClient');
 const { chunk, retrieveRelevant } = require('../services/chunker');
 const { buildAskPrompt } = require('../prompts/ask');
+const { MAX_DOCUMENT_CHARS } = require('../services/documentLimits');
 
 // POST /api/ask
 // Body: { text, messages: [{role, content}], question }
@@ -15,8 +16,20 @@ router.post('/', async (req, res, next) => {
     if (!text || text.trim().length < 10) {
       return res.status(400).json({ error: 'No document text provided.' });
     }
+    if (text.length > MAX_DOCUMENT_CHARS) {
+      return res.status(413).json({ error: `Document exceeds the ${MAX_DOCUMENT_CHARS}-character limit.` });
+    }
     if (!question || question.trim().length < 2) {
       return res.status(400).json({ error: 'No question provided.' });
+    }
+    if (question.length > 2000) {
+      return res.status(400).json({ error: 'Question exceeds the 2000-character limit.' });
+    }
+    if (!Array.isArray(messages) || messages.slice(-8).some((message) =>
+      !message || !['user', 'assistant'].includes(message.role) ||
+      typeof message.content !== 'string' || message.content.length > 8000
+    )) {
+      return res.status(400).json({ error: 'Conversation history is invalid.' });
     }
 
     // Set up SSE headers
@@ -79,10 +92,14 @@ router.post('/', async (req, res, next) => {
       },
     });
   } catch (err) {
-    console.error('[Ask Route Error]', err);
+    console.error('[Ask Route Error]', err.name || 'Error');
     try {
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
-      res.end();
+      if (res.headersSent) {
+        res.write(`data: ${JSON.stringify({ error: 'Unable to answer right now.' })}\n\n`);
+        res.end();
+      } else {
+        next(err);
+      }
     } catch {
       next(err);
     }

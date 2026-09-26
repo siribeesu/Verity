@@ -9,3 +9,32 @@
   flex: 1;
   overflow: hidden;
 }
+
+.auth-gate {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--color-bg);
+}
+
+.auth-panel {
+  width: min(100%, 420px);
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.auth-panel h1 {
+  margin-bottom: 0.75rem;
+  color: var(--color-secondary);
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+}
+
+.auth-panel p {
+  margin-bottom: 1.25rem;
+  color: var(--color-text-secondary);
+}
