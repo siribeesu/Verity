@@ -5,7 +5,7 @@ export function saveAnalysisToHistory(title, docType, docText, result) {
   try {
     const existing = getAnalysisHistory()
     const newEntry = {
-      id: 'doc_' + Date.now(),
+      id: `doc_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
       title: title || (result?.summary ? result.summary.slice(0, 45) + '...' : 'Legal Document Analysis'),
       docType: docType || 'general',
       date: new Date().toISOString(),
