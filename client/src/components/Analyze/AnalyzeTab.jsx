@@ -14,6 +14,7 @@ import {
   deleteAnalysisFromHistory,
   clearAllHistory
 } from '../../utils/historyStorage'
+import { SAMPLE_CONTRACTS } from '../../data/sampleContracts'
 import {
   FileSearch,
   Sparkles,
@@ -176,6 +177,33 @@ export default function AnalyzeTab({ onAnalysisComplete, onGoToLawyerPrep, onAsk
         </div>
 
         <div className="panel-body">
+          {/* One-click Sample Contract Loader */}
+          <div className="sample-contracts-container">
+            <div className="sample-contracts-header">
+              <Sparkles size={13} className="sample-icon" />
+              <span>Load sample contract:</span>
+            </div>
+            <div className="sample-contracts-chips">
+              {SAMPLE_CONTRACTS.map((sample) => (
+                <button
+                  key={sample.id}
+                  type="button"
+                  className="sample-contract-chip"
+                  onClick={() => {
+                    setText(sample.text)
+                    setDocType(sample.docType)
+                    setJurisdiction(sample.jurisdiction)
+                    setFile(null)
+                  }}
+                  title={sample.description}
+                >
+                  <span className="sample-chip-title">{sample.name}</span>
+                  <span className="sample-chip-badge">{sample.badge}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <DocumentInput
             label="Legal Document Content"
             value={text}

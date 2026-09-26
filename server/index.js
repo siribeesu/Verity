@@ -213,6 +213,18 @@ app.use('/api/compare', compareRoute);
 app.use('/api/ask', askRoute);
 app.use('/api/lawyer-prep', lawyerPrepRoute);
 
+// Serve built frontend assets when running in unified production/container mode
+const path = require('path');
+const fs = require('fs');
+const clientDistPath = path.resolve(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+}
+
 // Global error handler
 app.use((err, _req, res, _next) => {
   const status = err.statusCode || err.status || 500;
