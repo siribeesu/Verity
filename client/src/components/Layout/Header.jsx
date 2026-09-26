@@ -6,15 +6,18 @@ import {
   Scale,
   Home,
   LogOut,
-  ShieldCheck
+  ShieldCheck,
+  BarChart3
 } from 'lucide-react'
 import Logo from './Logo'
 import DisclaimerBanner from './DisclaimerBanner'
 import ComplianceModal from './ComplianceModal'
+import AdminModal from './AdminModal'
 import './Header.css'
 
 export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, accountLabel, onSignOut }) {
   const [showCompliance, setShowCompliance] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
   const tabs = [
     { id: 'landing', label: 'Home', icon: Home, desc: 'Overview & Capabilities' },
     { id: 'analyze', label: 'Analyze', icon: FileSearch, desc: 'Plain-English breakdown' },
@@ -82,10 +85,22 @@ export default function Header({ activeTab, onTabChange, hasAnalyzedDoc, account
             <ShieldCheck size={15} />
             <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Privacy & Trust</span>
           </button>
+
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm admin-nav-btn"
+            onClick={() => setShowAdmin(true)}
+            title="Admin Observability, Performance Metrics & RBAC"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginLeft: '0.2rem', color: 'var(--color-text-secondary)' }}
+          >
+            <BarChart3 size={15} />
+            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Admin</span>
+          </button>
         </div>
       </div>
 
       <ComplianceModal isOpen={showCompliance} onClose={() => setShowCompliance(false)} />
+      <AdminModal isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
     </header>
   )
 }

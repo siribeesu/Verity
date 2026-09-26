@@ -46,6 +46,10 @@ export default function AnalysisReportModal({ result, docText, docType, jurisdic
     exportAnalysisToJson(result, `legalassist-analysis-${new Date().toISOString().slice(0, 10)}.json`)
   }
 
+  function handleExportWord() {
+    exportAnalysisToWord(result, `legalassist-report-${new Date().toISOString().slice(0, 10)}.doc`)
+  }
+
   return (
     <div
       className="report-modal-overlay"
@@ -61,6 +65,10 @@ export default function AnalysisReportModal({ result, docText, docType, jurisdic
             <span id="report-modal-title" className="toolbar-title">Document Clarity Report Preview</span>
           </div>
           <div className="toolbar-actions">
+            <button type="button" className="btn btn-secondary btn-sm" onClick={handleExportWord} title="Export as Microsoft Word (.doc)">
+              <Download size={14} />
+              <span>Export Word</span>
+            </button>
             <button type="button" className="btn btn-secondary btn-sm" onClick={handleExportMd} title="Export as Markdown (.md)">
               <Download size={14} />
               <span>Export .MD</span>

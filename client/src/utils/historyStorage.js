@@ -166,3 +166,63 @@ export function exportAnalysisToMarkdown(analysis, filename = 'legalassist-repor
   URL.revokeObjectURL(url)
 }
 
+export function exportAnalysisToWord(analysis, filename = 'legalassist-report.doc') {
+  let docContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head>
+    <meta charset='utf-8'>
+    <title>LegalAssist Clarity Report</title>
+    <style>
+      body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; color: #1e293b; line-height: 1.5; }
+      h1 { color: #0f172a; font-size: 20pt; border-bottom: 2px solid #2563eb; padding-bottom: 6px; }
+      h2 { color: #1e293b; font-size: 14pt; margin-top: 18pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 9pt; }
+      .risk-high { background-color: #fee2e2; color: #991b1b; }
+      .risk-medium { background-color: #fef3c7; color: #92400e; }
+      .risk-low { background-color: #dcfce7; color: #166534; }
+      .clause-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 12px; background: #f8fafc; }
+      .excerpt { background: #ffffff; border-left: 3px solid #2563eb; padding: 6px 12px; font-style: italic; color: #334155; margin: 8px 0; }
+    </style>
+  </head>
+  <body>
+    <h1>LegalAssist Contract Clarity Report</h1>
+    <p><strong>Generated on:</strong> ${new Date().toLocaleDateString()}</p>
+    <h2>Executive Summary</h2>
+    <p>${analysis.summary || 'N/A'}</p>
+    <h2>Clause Analysis & Risk Flags (${analysis.clauses?.length || 0})</h2>`
+
+  for (const c of analysis.clauses || []) {
+    const risk = c.risk || 'low'
+    docContent += `
+    <div class='clause-card'>
+      <h3>${c.title || 'Untitled'} <span class='badge risk-${risk}'>${risk.toUpperCase()} RISK</span></h3>
+      <p><strong>Category:</strong> ${c.category || 'General'}${c.section_ref ? ` | <strong>Reference:</strong> ${c.section_ref}` : ''}</p>
+      <p><strong>Explanation:</strong> ${c.explanation || ''}</p>
+      <div class='excerpt'>&ldquo;${c.original_excerpt || ''}&rdquo;</div>
+      <p><strong>Risk Note:</strong> ${c.risk_reason || ''}</p>
+    </div>`
+  }
+
+  if (analysis.action_items?.length) {
+    docContent += `<h2>Action Checklist & Recommendations</h2><ul>`
+    for (const item of analysis.action_items) {
+      docContent += `<li><strong>[ ]</strong> ${item}</li>`
+    }
+    docContent += `</ul>`
+  }
+
+  docContent += `
+    <hr style='margin-top: 24pt;'>
+    <p style='font-size: 9pt; color: #64748b;'><em>Notice: LegalAssist is an informational clarity tool, not a licensed law firm. Always consult a qualified attorney for legal determinations.</em></p>
+  </body></html>`
+
+  const blob = new Blob([docContent], { type: 'application/msword;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+

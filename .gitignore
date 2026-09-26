@@ -23,6 +23,9 @@ client/.vite/
 npm-debug.log*
 server/logs/
 
+# Data
+server/data/*.json
+
 # OS
 .DS_Store
 Thumbs.db
