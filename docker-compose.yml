@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # LegalAssist Application (Express API + Vite React Frontend)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: legalassist-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - PROVIDER=gemini
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-AQ.Ab8RN6JDut_9-XHpZ5_cXBt2Uobw8j-Z7ZuQwsyFOGRkYsEz_Q}
+      - GEMINI_MODEL=gemini-3.5-flash
+      - REDIS_URL=redis://redis:6379
+      - API_RATE_LIMIT_MAX=200
+      - API_RATE_LIMIT_WINDOW_MS=900000
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - legalassist-network
+
+  # Distributed Rate Limiting & Session Store
+  redis:
+    image: redis:7-alpine
+    container_name: legalassist-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - legalassist-network
+
+networks:
+  legalassist-network:
+    driver: bridge
+
+volumes:
+  redis-data:

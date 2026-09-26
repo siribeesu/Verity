@@ -606,3 +606,68 @@
     width: 100%;
   }
 }
+
+/* Sample Contract Chips */
+.sample-contracts-container {
+  margin-bottom: 0.85rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--color-bg-alt, #f8fafc);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.sample-contracts-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.45rem;
+}
+
+.sample-icon {
+  color: var(--color-primary);
+}
+
+.sample-contracts-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.sample-contract-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sample-contract-chip:hover {
+  background: var(--color-primary-light, #eff6ff);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.sample-chip-badge {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.sample-contract-chip:hover .sample-chip-badge {
+  background: var(--color-primary);
+  color: #fff;
+}
